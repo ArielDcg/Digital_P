@@ -1,35 +1,47 @@
 // ps2_mouse_constraints.cst
-// Restricciones para Tang Primer 25K
+// Restricciones para Tang Primer 25K (GW5A-LV25MG121NES)
 
 // Clock del sistema (27 MHz)
 IO_LOC "clk" H11;
 IO_PORT "clk" PULL_MODE=UP;
 
-// Reset button (KEY1)
-IO_LOC "rst_n" H10;
+// Reset button (usar botón S1 o S2)
+IO_LOC "rst_n" T10;  // Botón S1
 IO_PORT "rst_n" PULL_MODE=UP;
 
 // Conexiones PS/2 - Usar pines PMOD disponibles
 // PMOD1 conectores para PS/2
-IO_LOC "ps2_clk" B10;   // PMOD1_1
-IO_PORT "ps2_clk" PULL_MODE=UP DRIVE=8 OPEN_DRAIN=ON;
+IO_LOC "ps2_clk" B12;   // PMOD1_1
+IO_PORT "ps2_clk" PULL_MODE=UP DRIVE=8;
 
-IO_LOC "ps2_data" A11;  // PMOD1_2
-IO_PORT "ps2_data" PULL_MODE=UP DRIVE=8 OPEN_DRAIN=ON;
+IO_LOC "ps2_data" C11;  // PMOD1_2
+IO_PORT "ps2_data" PULL_MODE=UP DRIVE=8;
 
 // Señales de debug para analizador lógico
 // Usar PMOD2 para conectar el analizador
-IO_LOC "debug_state[0]" E10;  // PMOD2_1
-IO_LOC "debug_state[1]" D10;  // PMOD2_2
-IO_LOC "debug_state[2]" D11;  // PMOD2_3
-IO_LOC "debug_state[3]" D12;  // PMOD2_4
-IO_LOC "debug_state[4]" E12;  // PMOD2_5
-IO_LOC "debug_state[5]" E13;  // PMOD2_6
-IO_LOC "debug_state[6]" F13;  // PMOD2_7
-IO_LOC "debug_state[7]" F12;  // PMOD2_8
+IO_LOC "debug_state[0]" A11;  // PMOD2_1
+IO_LOC "debug_state[1]" A10;  // PMOD2_2
+IO_LOC "debug_state[2]" B10;  // PMOD2_3
+IO_LOC "debug_state[3]" C10;  // PMOD2_4
+IO_LOC "debug_state[4]" E11;  // PMOD2_5
+IO_LOC "debug_state[5]" D11;  // PMOD2_6
+IO_LOC "debug_state[6]" C12;  // PMOD2_7
+IO_LOC "debug_state[7]" D12;  // PMOD2_8
 
-// LEDs para indicadores visuales
-IO_LOC "init_done" L14;       // LED1
-IO_LOC "rx_data_valid" L13;   // LED2
-IO_LOC "debug_busy" N16;      // LED3
-IO_LOC "debug_ack" N15;       // LED4
+// Debug pins adicionales (rx_data)
+IO_LOC "debug_pins[0]" E12;
+IO_LOC "debug_pins[1]" F12;
+IO_LOC "debug_pins[2]" F13;
+IO_LOC "debug_pins[3]" E13;
+IO_LOC "debug_pins[4]" G13;
+IO_LOC "debug_pins[5]" H13;
+IO_LOC "debug_pins[6]" J12;
+IO_LOC "debug_pins[7]" J13;
+
+// LEDs para indicadores visuales (nombres correctos del top module)
+IO_LOC "led_init_done" L14;    // LED1
+IO_LOC "led_activity" L13;     // LED2
+IO_LOC "led_error" K14;        // LED3
+
+// UART TX (opcional para debug futuro)
+IO_LOC "uart_tx" M11;          // UART TX pin
