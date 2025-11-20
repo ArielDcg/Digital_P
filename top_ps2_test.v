@@ -51,32 +51,6 @@ module top_ps2_test (
     
     // UART para debug (implementación simplificada)
     // Puedes agregar un módulo UART aquí si necesitas debug serial
+    assign uart_tx = 1'b1;  // Idle high cuando no se usa
 
 endmodule
-```
-
-## Conexiones físicas necesarias:
-
-1. **Mouse PS/2 a FPGA:**
-   - PS/2 Clock → PMOD1 Pin 1 (con resistencia pull-up de 4.7kΩ a 3.3V)
-   - PS/2 Data → PMOD1 Pin 2 (con resistencia pull-up de 4.7kΩ a 3.3V)
-   - PS/2 VDD → 5V
-   - PS/2 GND → GND
-
-2. **Analizador lógico a FPGA:**
-   - Canal 0-7 → debug_state[7:0] en PMOD2
-   - Canal 8 → ps2_clk
-   - Canal 9 → ps2_data
-   - Canal 10 → init_done
-   - Canal 11 → rx_data_valid
-   - GND → GND común
-
-## Configuración del analizador lógico:
-```
-- Sample rate: 1 MHz o superior
-- Trigger: Flanco de bajada en ps2_clk
-- Pre-trigger: 10%
-- Canales a monitorear:
-  * ps2_clk y ps2_data (protocolo PS/2)
-  * debug_state (estado de la FSM)
-  * rx_data_valid (pulso cuando llegan datos)

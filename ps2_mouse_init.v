@@ -84,82 +84,131 @@ module ps2_mouse_init (
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             state <= STATE_IDLE;
-            delay_counter <= 0;
+            delay_counter <= 32'd0;
             tx_data_reg <= 8'h00;
             tx_start <= 1'b0;
             init_complete <= 1'b0;
         end else begin
             state <= next_state;
-            
-            // Contador de delay
-            if (delay_counter > 0)
-                delay_counter <= delay_counter - 1;
-                
-            // Control de transmisión
-            if (tx_start)
-                tx_start <= 1'b0;
+
+            // Control del contador de delay (decrementar o cargar nuevo valor)
+            case (state)
+                STATE_IDLE: begin
+                    if (delay_counter == 0) begin
+                        delay_counter <= 32'd2700000; // ~100ms @ 27MHz
+                    end else begin
+                        delay_counter <= delay_counter - 1;
+                    end
+                end
+
+                STATE_RESET_WAIT: begin
+                    if (delay_counter == 0) begin
+                        tx_data_reg <= 8'hFF;  // Comando RESET
+                        tx_start <= 1'b1;
+                    end else begin
+                        delay_counter <= delay_counter - 1;
+                    end
+                end
+
+                STATE_SEND_RESET: begin
+                    if (tx_start)
+                        tx_start <= 1'b0;
+                end
+
+                STATE_WAIT_ID: begin
+                    if (rx_ready) begin
+                        delay_counter <= 32'd270000; // ~10ms
+                    end else if (delay_counter > 0) begin
+                        delay_counter <= delay_counter - 1;
+                    end
+                end
+
+                STATE_SEND_F4: begin
+                    if (delay_counter == 0 && !tx_busy && !tx_start) begin
+                        tx_data_reg <= 8'hF4;  // Enable Data Reporting
+                        tx_start <= 1'b1;
+                    end else begin
+                        if (tx_start)
+                            tx_start <= 1'b0;
+                        if (delay_counter > 0)
+                            delay_counter <= delay_counter - 1;
+                    end
+                end
+
+                STATE_WAIT_F4_ACK: begin
+                    if (tx_start)
+                        tx_start <= 1'b0;
+                    if (!tx_busy && tx_ack && rx_ready && rx_byte == 8'hFA) begin
+                        init_complete <= 1'b1;
+                    end
+                end
+
+                default: begin
+                    if (tx_start)
+                        tx_start <= 1'b0;
+                    if (delay_counter > 0)
+                        delay_counter <= delay_counter - 1;
+                end
+            endcase
         end
     end
-    
-    // Lógica de siguiente estado
+
+    // Lógica combinacional de siguiente estado (solo calcula next_state)
     always @(*) begin
         next_state = state;
-        
+
         case (state)
             STATE_IDLE: begin
                 if (delay_counter == 0) begin
-                    delay_counter = 32'd2700000; // ~100ms @ 27MHz
                     next_state = STATE_RESET_WAIT;
                 end
             end
-            
+
             STATE_RESET_WAIT: begin
                 if (delay_counter == 0) begin
-                    tx_data_reg = 8'hFF;  // Comando RESET
-                    tx_start = 1'b1;
                     next_state = STATE_SEND_RESET;
                 end
             end
-            
+
             STATE_SEND_RESET: begin
                 if (!tx_busy && tx_ack) begin
                     next_state = STATE_WAIT_BAT;
                 end
             end
-            
+
             STATE_WAIT_BAT: begin
                 if (rx_ready && rx_byte == 8'hAA) begin  // BAT completion code
                     next_state = STATE_WAIT_ID;
                 end
             end
-            
+
             STATE_WAIT_ID: begin
                 if (rx_ready) begin  // Mouse ID (típicamente 0x00)
-                    delay_counter = 32'd270000; // ~10ms
                     next_state = STATE_SEND_F4;
                 end
             end
-            
+
             STATE_SEND_F4: begin
                 if (delay_counter == 0 && !tx_busy) begin
-                    tx_data_reg = 8'hF4;  // Enable Data Reporting
-                    tx_start = 1'b1;
                     next_state = STATE_WAIT_F4_ACK;
                 end
             end
-            
+
             STATE_WAIT_F4_ACK: begin
                 if (!tx_busy && tx_ack) begin
                     if (rx_ready && rx_byte == 8'hFA) begin  // ACK del mouse
-                        init_complete = 1'b1;
                         next_state = STATE_STREAM_MODE;
                     end
                 end
             end
-            
+
             STATE_STREAM_MODE: begin
                 // Mouse está en stream mode, listo para enviar datos
                 // Permanecemos aquí recibiendo datos
+            end
+
+            default: begin
+                next_state = STATE_IDLE;
             end
         endcase
     end
