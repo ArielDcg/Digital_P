@@ -46,8 +46,8 @@ module ps2_mouse_init (
     wire rx_ready;
     
     // Control bidireccional de las líneas PS/2
-    reg ps2_clk_out, ps2_data_out;
-    reg ps2_clk_oe, ps2_data_oe;   // Output enable
+    wire ps2_clk_out, ps2_data_out;
+    wire ps2_clk_oe, ps2_data_oe;   // Output enable
     
     // Implementación de pines bidireccionales
     assign ps2_clk  = ps2_clk_oe  ? ps2_clk_out  : 1'bz;
