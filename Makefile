@@ -13,15 +13,17 @@ CONSTRAINTS = ps2_mouse_constraints.cst
 GOWIN_SH = gw_sh
 PROGRAMMER = openFPGALoader
 
-# Directorios
+# Archivos generados
+PROJECT_FILE = ps2_mouse.gprj
 BUILD_DIR = impl/pnr
+BITSTREAM = $(BUILD_DIR)/project.fs
 
 .PHONY: all synth program clean help
 
 all: synth
 
 # Síntesis completa
-synth: $(SOURCES) $(CONSTRAINTS)
+synth: $(SOURCES) $(CONSTRAINTS) $(PROJECT_FILE)
 	@echo "🔨 Iniciando síntesis..."
 	$(GOWIN_SH) build.tcl
 	@echo "✅ Síntesis completada. Bitstream generado en $(BUILD_DIR)/"
@@ -29,13 +31,21 @@ synth: $(SOURCES) $(CONSTRAINTS)
 # Programar FPGA via USB (SRAM)
 program:
 	@echo "📡 Programando FPGA (SRAM)..."
-	$(PROGRAMMER) -b tangprimer25k $(BUILD_DIR)/$(PROJECT).fs
+	@if [ ! -f $(BITSTREAM) ]; then \
+		echo "❌ Error: Bitstream no encontrado. Ejecuta 'make synth' primero."; \
+		exit 1; \
+	fi
+	$(PROGRAMMER) -b tangprimer25k $(BITSTREAM)
 	@echo "✅ FPGA programada"
 
 # Programar Flash (persistente)
 program-flash:
 	@echo "💾 Programando Flash..."
-	$(PROGRAMMER) -b tangprimer25k -f $(BUILD_DIR)/$(PROJECT).fs
+	@if [ ! -f $(BITSTREAM) ]; then \
+		echo "❌ Error: Bitstream no encontrado. Ejecuta 'make synth' primero."; \
+		exit 1; \
+	fi
+	$(PROGRAMMER) -b tangprimer25k -f $(BITSTREAM)
 	@echo "✅ Flash programado"
 
 # Limpiar archivos generados
