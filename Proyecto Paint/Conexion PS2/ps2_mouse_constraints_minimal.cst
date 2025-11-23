@@ -1,0 +1,45 @@
+// ps2_mouse_constraints_minimal.cst
+// Restricciones mínimas para Tang Primer 25K - prueba inicial
+
+// Clock del sistema (27 MHz) - pin confirmado
+IO_LOC "clk" H11;
+IO_PORT "clk" PULL_MODE=UP;
+
+// Reset button - usar un pin de botón conocido
+IO_LOC "rst_n" T10;
+IO_PORT "rst_n" PULL_MODE=UP;
+
+// Conexiones PS/2 mínimas (asignar a pines genéricos primero)
+IO_LOC "ps2_clk" B12;
+IO_PORT "ps2_clk" PULL_MODE=UP DRIVE=8;
+
+IO_LOC "ps2_data" C11;
+IO_PORT "ps2_data" PULL_MODE=UP DRIVE=8;
+
+// Solo un LED para prueba inicial
+IO_LOC "led_init_done" L14;
+IO_LOC "led_activity" L13;
+IO_LOC "led_error" K14;
+
+// Debug state - pines básicos
+IO_LOC "debug_state[0]" A11;
+IO_LOC "debug_state[1]" A10;
+IO_LOC "debug_state[2]" B10;
+IO_LOC "debug_state[3]" C10;
+IO_LOC "debug_state[4]" E11;
+IO_LOC "debug_state[5]" D11;
+IO_LOC "debug_state[6]" C12;
+IO_LOC "debug_state[7]" D12;
+
+// Debug pins
+IO_LOC "debug_pins[0]" E12;
+IO_LOC "debug_pins[1]" F12;
+IO_LOC "debug_pins[2]" F13;
+IO_LOC "debug_pins[3]" E13;
+IO_LOC "debug_pins[4]" G13;
+IO_LOC "debug_pins[5]" H13;
+IO_LOC "debug_pins[6]" J12;
+IO_LOC "debug_pins[7]" J13;
+
+// UART TX
+IO_LOC "uart_tx" M11;
