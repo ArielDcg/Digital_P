@@ -1,0 +1,32 @@
+[*]
+[*] GTKWave Analyzer v3.3.121 (w)1999-2024 BSI
+[*] Mon Oct  6 16:31:31 2025
+[*]
+[dumpfile] "/Work/Embedded/digital_UN/femtoRV/basic/rtl/SOC_TB.vcd"
+[dumpfile_mtime] "Mon Oct  6 16:31:31 2025"
+[dumpfile_size] 1599197184
+[savefile] "/Work/Embedded/digital_UN/femtoRV/basic/rtl/test_cpu_load_post_synt_efx.gtkw"
+[timestart] 26553
+[size] 1648 951
+[pos] -325 -176
+*-10.000000 27116 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] SOC_TB.
+[treeopen] SOC_TB.uut.
+[treeopen] SOC_TB.uut.RAM.
+[sst_width] 569
+[signals_width] 390
+[sst_expanded] 1
+[sst_vpaned_height] 618
+@22
+SOC_TB.uut.\CPU.PC[23:0]
+@28
+SOC_TB.uut.TXD
+SOC_TB.uut.RXD
+@22
+SOC_TB.uut.\CPU.rs1[31:0]
+SOC_TB.uut.\CPU.rs2[31:0]
+SOC_TB.uut.\CPU.writeBackData[31:0]
+SOC_TB.uut.\CPU.rdId[4:0]
+SOC_TB.uut.\CPU.aluReg[31:0]
+[pattern_trace] 1
+[pattern_trace] 0
