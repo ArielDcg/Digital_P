@@ -27,8 +27,8 @@ El sistema está compuesto por:
   - Conversor BIN ↔ BCD
 
 ### Hardware Objetivo
-- **FPGAs**: Efinix Tang Nano 20K, Tang Primer 25K
-- **Frecuencia de reloj**: 27 MHz (Nano 20K), 50 MHz (Primer 25K)
+- **FPGA**: Sipeed Tang Primer 25K (Efinix Trion T20)
+- **Frecuencia de reloj**: 50 MHz
 - **Comunicación**: UART 115200 baudios
 
 ---
@@ -47,7 +47,7 @@ El multiplicador implementa el algoritmo de multiplicación por sumas y desplaza
 
 ### Diagrama de Flujo del Algoritmo
 
-![Diagrama de Flujo Multiplicador](Calculadora/cores/mult/Diagrama%20de%20flujo%20multiplicador.pdf)
+![Diagrama de Flujo Multiplicador](Calculadora/modulos/mult/Diagrama%20de%20flujo%20multiplicador.pdf)
 
 El algoritmo sigue estos pasos:
 1. Inicialización: PP=0, DONE=0
@@ -59,7 +59,7 @@ El algoritmo sigue estos pasos:
 
 ### Diagrama de Bloques del Camino de Datos
 
-![Camino de Datos Multiplicador](Calculadora/cores/mult/Camino%20de%20datos%20multiplicador.pdf)
+![Camino de Datos Multiplicador](Calculadora/modulos/mult/Camino%20de%20datos%20multiplicador.pdf)
 
 **Componentes principales:**
 - **LSR (Left Shift Register)**: Desplaza A hacia la izquierda
@@ -69,7 +69,7 @@ El algoritmo sigue estos pasos:
 
 ### Diagrama de Estados de la Máquina de Control
 
-![Máquina de Estados Multiplicador](Calculadora/cores/mult/Maquina%20de%20estados%20multiplicador.pdf)
+![Máquina de Estados Multiplicador](Calculadora/modulos/mult/Maquina%20de%20estados%20multiplicador.pdf)
 
 **Estados:**
 - **START**: Inicialización del sistema, RESET=1
@@ -176,13 +176,13 @@ end
 endmodule
 ```
 
-**Ubicación**: [`Calculadora/cores/mult/mult.v`](Calculadora/cores/mult/mult.v)
+**Ubicación**: [`Calculadora/modulos/mult/mult.v`](Calculadora/modulos/mult/mult.v)
 
 #### Periférico: perip_mult.v
 
 El módulo periférico proporciona interfaz de registros mapeados en memoria para el CPU.
 
-**Ubicación**: [`Calculadora/cores/mult/perip_mult.v`](Calculadora/cores/mult/perip_mult.v)
+**Ubicación**: [`Calculadora/modulos/mult/perip_mult.v`](Calculadora/modulos/mult/perip_mult.v)
 
 ### Simulaciones
 
@@ -212,7 +212,7 @@ El divisor implementa el algoritmo de división por restauración, procesando di
 
 ### Diagrama de Flujo del Algoritmo
 
-![Diagrama de Flujo División](Calculadora/cores/div/Diagrama%20de%20flujo%20Division.pdf)
+![Diagrama de Flujo División](Calculadora/modulos/div/Diagrama%20de%20flujo%20Division.pdf)
 
 **Pasos del algoritmo:**
 1. Cargar DV (dividendo) y DR (divisor), count=N, A=0
@@ -224,7 +224,7 @@ El divisor implementa el algoritmo de división por restauración, procesando di
 
 ### Diagrama de Bloques del Camino de Datos
 
-![Camino de Datos División](Calculadora/cores/div/Camino%20de%20datos%20Division.pdf)
+![Camino de Datos División](Calculadora/modulos/div/Camino%20de%20datos%20Division.pdf)
 
 **Componentes:**
 - **Registro A-DV**: Registro de 32 bits para dividendo extendido
@@ -234,7 +234,7 @@ El divisor implementa el algoritmo de división por restauración, procesando di
 
 ### Diagrama de Estados de la Máquina de Control
 
-![Máquina de Estados División](Calculadora/cores/div/Maquina%20de%20estados%20Division.pdf)
+![Máquina de Estados División](Calculadora/modulos/div/Maquina%20de%20estados%20Division.pdf)
 
 **Estados:**
 - **START**: Inicialización, carga de operandos
@@ -349,7 +349,7 @@ end
 endmodule
 ```
 
-**Ubicación**: [`Calculadora/cores/div/div.v`](Calculadora/cores/div/div.v)
+**Ubicación**: [`Calculadora/modulos/div/div.v`](Calculadora/modulos/div/div.v)
 
 ### Simulaciones
 
@@ -377,7 +377,7 @@ Implementación del algoritmo de raíz cuadrada por aproximaciones sucesivas (no
 
 ### Diagrama de Flujo del Algoritmo
 
-![Diagrama de Flujo SQRT](Calculadora/cores/sqrt_ASM/Diagrama%20de%20flujo%20SQRT.pdf)
+![Diagrama de Flujo SQRT](Calculadora/modulos/sqrt_ASM/Diagrama%20de%20flujo%20SQRT.pdf)
 
 **Algoritmo:**
 1. Inicializar: done=0, result=0, count=N/2, tmp=0, A={0,op_A}, R=0
@@ -390,7 +390,7 @@ Implementación del algoritmo de raíz cuadrada por aproximaciones sucesivas (no
 
 ### Diagrama de Bloques del Camino de Datos
 
-![Camino de Datos SQRT](Calculadora/cores/sqrt_ASM/Camino%20de%20Datos%20SQRT.pdf)
+![Camino de Datos SQRT](Calculadora/modulos/sqrt_ASM/Camino%20de%20Datos%20SQRT.pdf)
 
 **Componentes principales:**
 - **LDA2**: Registro de doble desplazamiento para A
@@ -401,7 +401,7 @@ Implementación del algoritmo de raíz cuadrada por aproximaciones sucesivas (no
 
 ### Diagrama de Estados de la Máquina de Control
 
-![Máquina de Estados SQRT](Calculadora/cores/sqrt_ASM/Maquina%20de%20estados%20SQRT.pdf)
+![Máquina de Estados SQRT](Calculadora/modulos/sqrt_ASM/Maquina%20de%20estados%20SQRT.pdf)
 
 **Estados:**
 - **START**: Inicialización
@@ -446,9 +446,9 @@ module sqrt(clk , rst , init , A , result , done);
 endmodule
 ```
 
-**Ubicación**: [`Calculadora/cores/sqrt_ASM/sqrt.v`](Calculadora/cores/sqrt_ASM/sqrt.v)
+**Ubicación**: [`Calculadora/modulos/sqrt_ASM/sqrt.v`](Calculadora/modulos/sqrt_ASM/sqrt.v)
 
-**Control**: [`Calculadora/cores/sqrt_ASM/control.v`](Calculadora/cores/sqrt_ASM/control.v)
+**Control**: [`Calculadora/modulos/sqrt_ASM/control.v`](Calculadora/modulos/sqrt_ASM/control.v)
 
 ### Simulaciones
 
@@ -476,7 +476,7 @@ Conversor de formato BCD (Binary Coded Decimal) a formato binario natural, utili
 
 ### Diagrama de Flujo del Algoritmo
 
-![Diagrama de Flujo BCD2BIN](Calculadora/cores/bcd2bin/Diagrama%20de%20flujo%20BCD%202%20BIN.pdf)
+![Diagrama de Flujo BCD2BIN](Calculadora/modulos/bcd2bin/Diagrama%20de%20flujo%20BCD%202%20BIN.pdf)
 
 **Pasos:**
 1. Cargar BCD[19:0], Bin[15:0], N=16
@@ -488,7 +488,7 @@ Conversor de formato BCD (Binary Coded Decimal) a formato binario natural, utili
 
 ### Diagrama de Bloques del Camino de Datos
 
-![Camino de Datos BCD2BIN](Calculadora/cores/bcd2bin/Camino%20de%20Datos%20BCD%202%20BIN.pdf)
+![Camino de Datos BCD2BIN](Calculadora/modulos/bcd2bin/Camino%20de%20Datos%20BCD%202%20BIN.pdf)
 
 **Componentes:**
 - **RSR4**: Registro de desplazamiento de 36 bits (BCD + BIN)
@@ -499,7 +499,7 @@ Conversor de formato BCD (Binary Coded Decimal) a formato binario natural, utili
 
 ### Diagrama de Estados de la Máquina de Control
 
-![Máquina de Estados BCD2BIN](Calculadora/cores/bcd2bin/Maquina%20de%20Estados.pdf)
+![Máquina de Estados BCD2BIN](Calculadora/modulos/bcd2bin/Maquina%20de%20Estados.pdf)
 
 **Estados:**
 - **START**: Inicialización, carga de entrada BCD
@@ -560,13 +560,13 @@ module bcd2bin(clk , rst , init , A , result , done);
 endmodule
 ```
 
-**Ubicación**: [`Calculadora/cores/bcd2bin/bcd2bin.v`](Calculadora/cores/bcd2bin/bcd2bin.v)
+**Ubicación**: [`Calculadora/modulos/bcd2bin/bcd2bin.v`](Calculadora/modulos/bcd2bin/bcd2bin.v)
 
-**Control**: [`Calculadora/cores/bcd2bin/ctrl_b2b.v`](Calculadora/cores/bcd2bin/ctrl_b2b.v)
+**Control**: [`Calculadora/modulos/bcd2bin/ctrl_b2b.v`](Calculadora/modulos/bcd2bin/ctrl_b2b.v)
 
 ### Simulaciones
 
-![Simulación BCD2BIN](Calculadora/cores/bcd2bin/sims.pdf)
+![Simulación BCD2BIN](Calculadora/modulos/bcd2bin/sims.pdf)
 
 > **Nota**: Ver archivo `sims.pdf` para simulaciones detalladas.
 
@@ -590,7 +590,7 @@ Conversor de formato binario natural a formato BCD, utilizando el algoritmo Doub
 
 ### Diagrama de Flujo del Algoritmo
 
-![Diagrama de Flujo BIN2BCD](Calculadora/cores/bin2bcd/Diagrama%20de%20flujo%20BIN%202%20BCD.pdf)
+![Diagrama de Flujo BIN2BCD](Calculadora/modulos/bin2bcd/Diagrama%20de%20flujo%20BIN%202%20BCD.pdf)
 
 **Pasos:**
 1. Inicializar A={A'',op_A}, count=N
@@ -603,7 +603,7 @@ Conversor de formato binario natural a formato BCD, utilizando el algoritmo Doub
 
 ### Diagrama de Bloques del Camino de Datos
 
-![Camino de Datos BIN2BCD](Calculadora/cores/bin2bcd/Camino%20de%20Datos%20BIN%202%20BCD.pdf)
+![Camino de Datos BIN2BCD](Calculadora/modulos/bin2bcd/Camino%20de%20Datos%20BIN%202%20BCD.pdf)
 
 **Componentes:**
 - **LSR4**: Registro de desplazamiento izquierdo de 36 bits
@@ -614,7 +614,7 @@ Conversor de formato binario natural a formato BCD, utilizando el algoritmo Doub
 
 ### Diagrama de Estados de la Máquina de Control
 
-![Máquina de Estados BIN2BCD](Calculadora/cores/bin2bcd/Maquina%20de%20Estados%20BIn%202%20BCD.pdf)
+![Máquina de Estados BIN2BCD](Calculadora/modulos/bin2bcd/Maquina%20de%20Estados%20BIn%202%20BCD.pdf)
 
 **Estados:**
 - **START**: Inicialización del sistema
@@ -676,11 +676,11 @@ module bin2bcd(clk , rst , init , A , result , done);
 endmodule
 ```
 
-**Ubicación**: [`Calculadora/cores/bin2bcd/bin2bcd.v`](Calculadora/cores/bin2bcd/bin2bcd.v)
+**Ubicación**: [`Calculadora/modulos/bin2bcd/bin2bcd.v`](Calculadora/modulos/bin2bcd/bin2bcd.v)
 
 ### Simulaciones
 
-![Simulación BIN2BCD](Calculadora/cores/bin2bcd/sims.pdf)
+![Simulación BIN2BCD](Calculadora/modulos/bin2bcd/sims.pdf)
 
 > **Nota**: Ver archivo `sims.pdf` para simulaciones detalladas.
 
@@ -804,14 +804,14 @@ make -f Makefile flash
 - **Simulación**: Icarus Verilog + GTKWave
 - **Lenguaje**: Verilog HDL
 - **Toolchain RISC-V**: GCC RISC-V
-- **Hardware**: Tang Nano 20K, Tang Primer 25K
+- **Hardware**: Sipeed Tang Primer 25K
 
 ## Estructura del Repositorio
 
 ```
 Digital_P/
 ├── Calculadora/
-│   ├── cores/
+│   ├── modulos/
 │   │   ├── mult/          # Multiplicador
 │   │   ├── div/           # Divisor
 │   │   ├── sqrt_ASM/      # Raíz cuadrada
@@ -819,10 +819,16 @@ Digital_P/
 │   │   ├── bcd2bin/       # Conversor BCD a Binario
 │   │   ├── uart/          # Comunicación UART
 │   │   ├── bram/          # Memoria RAM
+│   │   ├── spi_flash/     # Memoria Flash SPI
 │   │   └── cpu/           # Procesador FemtoRV32
+│   ├── IC/                # Módulos integrados
 │   ├── SOC.v              # Sistema completo
-│   ├── Makefile           # Scripts de compilación
-│   └── firmware.hex       # Firmware para el CPU
+│   ├── Makefile           # Scripts de compilación principal
+│   ├── Makefile.flash     # Scripts para versión con Flash
+│   ├── Makefile.ice       # Scripts para iCE40
+│   ├── firmware.hex       # Firmware para el CPU
+│   ├── sipeed_tang_primer_25k.cst  # Configuración Tang Primer 25K
+│   └── sipeed_tang_primer_25k.sdc  # Timing constraints
 └── README.md              # Este archivo
 ```
 
@@ -840,7 +846,7 @@ Digital_P/
 Para simular un módulo individual:
 
 ```bash
-cd Calculadora/cores/mult
+cd Calculadora/modulos/mult
 make sim
 gtkwave mult.gtkw
 ```

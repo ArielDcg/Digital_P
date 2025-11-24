@@ -2,17 +2,17 @@ TARGET=SOC_flash
 TOP=SOC_flash_syn
 
 OBJS = SOC_flash.v
-OBJS+= cores/cpu/femtorv32_quark_V2.v
-//OBJS+= cores/cpu/femtorv32_quark.v
-OBJS+= cores/uart/perip_uart.v
-OBJS+= cores/uart/uart.v
-OBJS+= cores/mult/perip_mult.v
-OBJS+= cores/mult/mult.v
-//OBJS+= cores/spi_flash/MappedSPIFlash_V3.v
-OBJS+= cores/spi_flash/MappedSPIFlash.v
-OBJS+= cores/bram/bram.v
+OBJS+= modulos/cpu/femtorv32_quark_V2.v
+//OBJS+= modulos/cpu/femtorv32_quark.v
+OBJS+= modulos/uart/perip_uart.v
+OBJS+= modulos/uart/uart.v
+OBJS+= modulos/mult/perip_mult.v
+OBJS+= modulos/mult/mult.v
+//OBJS+= modulos/spi_flash/MappedSPIFlash_V3.v
+OBJS+= modulos/spi_flash/MappedSPIFlash.v
+OBJS+= modulos/bram/bram.v
 
-SIM_OBJS = cores/sim_spi_flash/spiflash.v
+SIM_OBJS = modulos/sim_spi_flash/spiflash.v
 
 
 
