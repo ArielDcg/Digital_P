@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE gowin-synthesis-project>
+<Project>
+    <Version>beta</Version>
+    <Device id="GW5A-25A" package="MBGA121N" speed="1" partNumber="GW5A-LV25MG121NC1/I0"/>
+    <FileList>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/cpu/femtorv32_quark_V2.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/uart/perip_uart.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/uart/uart.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/perip_mult.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/mult_32.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/acc.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/comp.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/lsr_mult.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/control_mult.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/rsr.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/div/perip_div.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/div/div.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/addc2.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/count.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/lsr.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/perip_sqrt.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/sqrt.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/lsr2.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/control.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/add_sub_c2.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/bin2bcd.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/mux2.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/count.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/ctrl_b2b.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/perip_bin2bcd.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/lsr4.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/reg_msb.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/bcd2bin/bcd2bin.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/bcd2bin/perip_bcd2bin.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/bcd2bin/rsr4.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/cores/bram/bram.v" type="verilog"/>
+        <File path="/home/arielo/repos/Digital_P/Calculadora/SOC.v" type="verilog"/>
+    </FileList>
+    <OptionList>
+        <Option type="disable_insert_pad" value="0"/>
+        <Option type="enable_dsrm" value="0"/>
+        <Option type="global_freq" value="100.000"/>
+        <Option type="looplimit" value="2000"/>
+        <Option type="output_file" value="/home/arielo/repos/Digital_P/Calculadora/impl/gwsynthesis/project.vg"/>
+        <Option type="print_all_synthesis_warning" value="0"/>
+        <Option type="ram_rw_check" value="1"/>
+        <Option type="vcc" value="0.9"/>
+        <Option type="verilog_language" value="verilog-2001"/>
+        <Option type="vhdl_language" value="vhdl-1993"/>
+    </OptionList>
+</Project>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module name="SOC" Lut="130" T_Register="1853(0)" T_Alu="220(0)" T_Lut="2418(130)" T_Bsram="8(0)">
+ <SubModule name="CPU" Register="1182" Alu="142" Lut="1682" T_Register="1182(1182)" T_Alu="142(142)" T_Lut="1682(1682)"/>
+ <SubModule name="RAM" Lut="11" Bsram="8" T_Lut="11(11)" T_Bsram="8(8)"/>
+ <SubModule name="per_uart" Register="22" Lut="19" T_Register="85(22)" T_Alu="15(0)" T_Lut="82(19)">
+  <SubModule name="uart0" Register="63" Alu="15" Lut="63" T_Register="63(63)" T_Alu="15(15)" T_Lut="63(63)"/>
+ </SubModule>
+ <SubModule name="mult1" Register="65" Lut="44" T_Register="156(65)" T_Alu="32(0)" T_Lut="101(44)">
+  <SubModule name="mult1" T_Register="91(0)" T_Alu="32(0)" T_Lut="57(0)">
+   <SubModule name="rsr0" Register="16" Lut="18" T_Register="16(16)" T_Lut="18(18)"/>
+   <SubModule name="lsr0" Register="32" Lut="16" T_Register="32(32)" T_Lut="16(16)"/>
+   <SubModule name="acc0" Register="32" Alu="32" T_Register="32(32)" T_Alu="32(32)"/>
+   <SubModule name="control0" Register="11" Lut="23" T_Register="11(11)" T_Lut="23(23)"/>
+  </SubModule>
+ </SubModule>
+ <SubModule name="div1" Register="49" Lut="24" T_Register="122(49)" T_Alu="16(0)" T_Lut="106(24)">
+  <SubModule name="div1" Register="73" Alu="16" Lut="82" T_Register="73(73)" T_Alu="16(16)" T_Lut="82(82)"/>
+ </SubModule>
+ <SubModule name="sqrt1" Register="33" Lut="21" T_Register="112(33)" T_Alu="15(0)" T_Lut="85(21)">
+  <SubModule name="sqrt0" T_Register="79(0)" T_Alu="15(0)" T_Lut="64(0)">
+   <SubModule name="lsr20" Register="32" Lut="34" T_Register="32(32)" T_Lut="34(34)"/>
+   <SubModule name="lsr_R" Register="16" T_Register="16(16)"/>
+   <SubModule name="lsr_TMP" Register="15" T_Register="15(15)"/>
+   <SubModule name="addsub0" Alu="15" T_Alu="15(15)"/>
+   <SubModule name="count0" Register="5" Lut="5" T_Register="5(5)" T_Lut="5(5)"/>
+   <SubModule name="control0" Register="11" Lut="25" T_Register="11(11)" T_Lut="25(25)"/>
+  </SubModule>
+ </SubModule>
+ <SubModule name="bin2bcd0" Register="37" Lut="24" T_Register="98(37)" T_Lut="106(24)">
+  <SubModule name="bin2bcd0" T_Register="61(0)" T_Lut="82(0)">
+   <SubModule name="lsr40" Register="36" Lut="42" T_Register="36(36)" T_Lut="42(42)"/>
+   <SubModule name="comp0" Lut="2" T_Lut="2(2)"/>
+   <SubModule name="comp1" Lut="2" T_Lut="2(2)"/>
+   <SubModule name="comp2" Lut="2" T_Lut="2(2)"/>
+   <SubModule name="comp3" Lut="2" T_Lut="2(2)"/>
+   <SubModule name="comp4" Lut="2" T_Lut="2(2)"/>
+   <SubModule name="reg0" Register="5" T_Register="5(5)"/>
+   <SubModule name="count0" Register="6" Lut="8" T_Register="6(6)" T_Lut="8(8)"/>
+   <SubModule name="control0" Register="14" Lut="22" T_Register="14(14)" T_Lut="22(22)"/>
+  </SubModule>
+ </SubModule>
+ <SubModule name="bcd2bin0" Register="37" Lut="20" T_Register="98(37)" T_Lut="115(20)">
+  <SubModule name="bcd2bin0" T_Register="61(0)" T_Lut="95(0)">
+   <SubModule name="rsr40" Register="36" Lut="54" T_Register="36(36)" T_Lut="54(54)"/>
+   <SubModule name="comp0" Lut="2" T_Lut="2(2)"/>
+   <SubModule name="comp1" Lut="2" T_Lut="2(2)"/>
+   <SubModule name="comp2" Lut="2" T_Lut="2(2)"/>
+   <SubModule name="comp3" Lut="2" T_Lut="2(2)"/>
+   <SubModule name="comp4" Lut="2" T_Lut="2(2)"/>
+   <SubModule name="reg0" Register="5" T_Register="5(5)"/>
+   <SubModule name="count0" Register="6" Lut="9" T_Register="6(6)" T_Lut="9(9)"/>
+   <SubModule name="control0" Register="14" Lut="22" T_Register="14(14)" T_Lut="22(22)"/>
+  </SubModule>
+ </SubModule>
+</Module>

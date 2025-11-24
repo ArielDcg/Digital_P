@@ -7,7 +7,7 @@ parameter c_BIT_PERIOD     = 17361;
 
    reg CLK;
    reg i;
-   reg RESET;
+   reg RESET; 
    wire LEDS;
    reg  RXD = 1'b0;
    wire TXD;

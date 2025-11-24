@@ -1,0 +1,128 @@
+GowinSynthesis start
+Running parser ...
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/cpu/femtorv32_quark_V2.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/uart/perip_uart.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/uart/uart.v'
+WARN  (EX3801) : Parameter 'divisor' becomes localparam in 'uart' with formal parameter declaration list("/home/arielo/repos/Digital_P/Calculadora/cores/uart/uart.v":24)
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/perip_mult.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/mult_32.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/acc.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/comp.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/lsr_mult.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/control_mult.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/rsr.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/div/perip_div.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/div/div.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/addc2.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/count.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/lsr.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/perip_sqrt.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/sqrt.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/lsr2.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/control.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/add_sub_c2.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/bin2bcd.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/mux2.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/count.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/ctrl_b2b.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/perip_bin2bcd.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/lsr4.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/reg_msb.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/bcd2bin/bcd2bin.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/bcd2bin/perip_bcd2bin.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/bcd2bin/rsr4.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/cores/bram/bram.v'
+Analyzing Verilog file '/home/arielo/repos/Digital_P/Calculadora/SOC.v'
+Compiling module 'SOC'("/home/arielo/repos/Digital_P/Calculadora/SOC.v":2)
+Compiling module 'FemtoRV32'("/home/arielo/repos/Digital_P/Calculadora/cores/cpu/femtorv32_quark_V2.v":2)
+WARN  (EX3791) : Expression size 25 truncated to fit in target size 24("/home/arielo/repos/Digital_P/Calculadora/cores/cpu/femtorv32_quark_V2.v":165)
+WARN  (EX3791) : Expression size 32 truncated to fit in target size 5("/home/arielo/repos/Digital_P/Calculadora/cores/cpu/femtorv32_quark_V2.v":206)
+WARN  (EX3826) : Synthesis - simulation differences may occur when using parallel_case directive("/home/arielo/repos/Digital_P/Calculadora/cores/cpu/femtorv32_quark_V2.v":259)
+Compiling module 'bram'("/home/arielo/repos/Digital_P/Calculadora/cores/bram/bram.v":3)
+Extracting RAM for identifier 'MEM'("/home/arielo/repos/Digital_P/Calculadora/cores/bram/bram.v":12)
+Compiling module 'peripheral_uart(clk_freq=50000000)'("/home/arielo/repos/Digital_P/Calculadora/cores/uart/perip_uart.v":1)
+Compiling module 'uart(freq_hz=50000000)'("/home/arielo/repos/Digital_P/Calculadora/cores/uart/uart.v":5)
+WARN  (EX3791) : Expression size 32 truncated to fit in target size 16("/home/arielo/repos/Digital_P/Calculadora/cores/uart/uart.v":39)
+WARN  (EX3791) : Expression size 5 truncated to fit in target size 4("/home/arielo/repos/Digital_P/Calculadora/cores/uart/uart.v":88)
+WARN  (EX3791) : Expression size 5 truncated to fit in target size 4("/home/arielo/repos/Digital_P/Calculadora/cores/uart/uart.v":91)
+WARN  (EX3791) : Expression size 5 truncated to fit in target size 4("/home/arielo/repos/Digital_P/Calculadora/cores/uart/uart.v":137)
+WARN  (EX3791) : Expression size 5 truncated to fit in target size 4("/home/arielo/repos/Digital_P/Calculadora/cores/uart/uart.v":140)
+Compiling module 'peripheral_mult'("/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/perip_mult.v":1)
+Compiling module 'mult_32'("/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/mult_32.v":1)
+Compiling module 'rsr'("/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/rsr.v":1)
+Compiling module 'lsr_mult'("/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/lsr_mult.v":1)
+Compiling module 'comp'("/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/comp.v":1)
+Compiling module 'acc'("/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/acc.v":1)
+Compiling module 'control_mult'("/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/control_mult.v":1)
+WARN  (EX3791) : Expression size 5 truncated to fit in target size 4("/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/control_mult.v":84)
+Compiling module 'peripheral_div'("/home/arielo/repos/Digital_P/Calculadora/cores/div/perip_div.v":1)
+Compiling module 'div'("/home/arielo/repos/Digital_P/Calculadora/cores/div/div.v":1)
+WARN  (EX3791) : Expression size 32 truncated to fit in target size 16("/home/arielo/repos/Digital_P/Calculadora/cores/div/div.v":31)
+WARN  (EX3791) : Expression size 32 truncated to fit in target size 5("/home/arielo/repos/Digital_P/Calculadora/cores/div/div.v":61)
+WARN  (EX3791) : Expression size 32 truncated to fit in target size 16("/home/arielo/repos/Digital_P/Calculadora/cores/div/div.v":79)
+WARN  (EX3791) : Expression size 6 truncated to fit in target size 5("/home/arielo/repos/Digital_P/Calculadora/cores/div/div.v":89)
+Compiling module 'peripheral_sqrt'("/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/perip_sqrt.v":1)
+Compiling module 'sqrt'("/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/sqrt.v":1)
+Compiling module 'lsr2'("/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/lsr2.v":1)
+Compiling module 'lsr'("/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/lsr.v":1)
+Compiling module 'addc2'("/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/addc2.v":1)
+WARN  (EX3791) : Expression size 32 truncated to fit in target size 16("/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/addc2.v":8)
+Compiling module 'count'("/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/count.v":1)
+WARN  (EX3791) : Expression size 32 truncated to fit in target size 4("/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/count.v":16)
+Compiling module 'control_sqrt'("/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/control.v":1)
+WARN  (EX3791) : Expression size 9 truncated to fit in target size 8("/home/arielo/repos/Digital_P/Calculadora/cores/sqrt_ASM/control.v":76)
+Compiling module 'peripheral_bin2bcd'("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/perip_bin2bcd.v":1)
+Compiling module 'bin2bcd'("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/bin2bcd.v":1)
+Compiling module 'lsr4'("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/lsr4.v":1)
+Compiling module 'mux'("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/mux2.v":1)
+Compiling module 'add_sub_c2'("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/add_sub_c2.v":1)
+Compiling module 'reg_msb'("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/reg_msb.v":1)
+Compiling module 'cnt_bin2bcd'("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/count.v":1)
+WARN  (EX3791) : Expression size 32 truncated to fit in target size 5("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/count.v":16)
+Compiling module 'ctrl_b2b'("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/ctrl_b2b.v":1)
+WARN  (EX3791) : Expression size 7 truncated to fit in target size 6("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/ctrl_b2b.v":63)
+WARN  (EX2420) : Latch inferred for net 'done'; We do not recommend the use of latches in FPGA designs, as they may lead to timing problems("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/ctrl_b2b.v":132)
+Compiling module 'peripheral_bcd2bin'("/home/arielo/repos/Digital_P/Calculadora/cores/bcd2bin/perip_bcd2bin.v":1)
+Compiling module 'bcd2bin'("/home/arielo/repos/Digital_P/Calculadora/cores/bcd2bin/bcd2bin.v":1)
+Compiling module 'rsr4'("/home/arielo/repos/Digital_P/Calculadora/cores/bcd2bin/rsr4.v":1)
+NOTE  (EX0101) : Current top module is "SOC"
+[5%] Running netlist conversion ...
+Running device independent optimization ...
+[10%] Optimizing Phase 0 completed
+[15%] Optimizing Phase 1 completed
+[25%] Optimizing Phase 2 completed
+Running inference ...
+[30%] Inferring Phase 0 completed
+[40%] Inferring Phase 1 completed
+[50%] Inferring Phase 2 completed
+[55%] Inferring Phase 3 completed
+Running technical mapping ...
+[60%] Tech-Mapping Phase 0 completed
+[65%] Tech-Mapping Phase 1 completed
+WARN  (DI0003) : Latch inferred for net 'done';We do not recommend the use of latches in FPGA designs, as they may lead to timing problems("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/ctrl_b2b.v":132)
+WARN  (DI0003) : Latch inferred for net 'ld_msb';We do not recommend the use of latches in FPGA designs, as they may lead to timing problems("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/ctrl_b2b.v":132)
+WARN  (DI0003) : Latch inferred for net 'sh';We do not recommend the use of latches in FPGA designs, as they may lead to timing problems("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/ctrl_b2b.v":132)
+WARN  (DI0003) : Latch inferred for net 'ld';We do not recommend the use of latches in FPGA designs, as they may lead to timing problems("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/ctrl_b2b.v":132)
+WARN  (DI0003) : Latch inferred for net 'add';We do not recommend the use of latches in FPGA designs, as they may lead to timing problems("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/ctrl_b2b.v":132)
+WARN  (DI0003) : Latch inferred for net 'done';We do not recommend the use of latches in FPGA designs, as they may lead to timing problems("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/ctrl_b2b.v":132)
+WARN  (DI0003) : Latch inferred for net 'ld_msb';We do not recommend the use of latches in FPGA designs, as they may lead to timing problems("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/ctrl_b2b.v":132)
+WARN  (DI0003) : Latch inferred for net 'sh';We do not recommend the use of latches in FPGA designs, as they may lead to timing problems("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/ctrl_b2b.v":132)
+WARN  (DI0003) : Latch inferred for net 'ld';We do not recommend the use of latches in FPGA designs, as they may lead to timing problems("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/ctrl_b2b.v":132)
+WARN  (DI0003) : Latch inferred for net 'add';We do not recommend the use of latches in FPGA designs, as they may lead to timing problems("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/ctrl_b2b.v":132)
+[75%] Tech-Mapping Phase 2 completed
+[80%] Tech-Mapping Phase 3 completed
+[90%] Tech-Mapping Phase 4 completed
+WARN  (NL0002) : The module "mux" instantiated to "mux0" is swept in optimizing("/home/arielo/repos/Digital_P/Calculadora/cores/bcd2bin/bcd2bin.v":30)
+WARN  (NL0002) : The module "mux" instantiated to "mux1" is swept in optimizing("/home/arielo/repos/Digital_P/Calculadora/cores/bcd2bin/bcd2bin.v":31)
+WARN  (NL0002) : The module "mux" instantiated to "mux2" is swept in optimizing("/home/arielo/repos/Digital_P/Calculadora/cores/bcd2bin/bcd2bin.v":32)
+WARN  (NL0002) : The module "mux" instantiated to "mux3" is swept in optimizing("/home/arielo/repos/Digital_P/Calculadora/cores/bcd2bin/bcd2bin.v":33)
+WARN  (NL0002) : The module "mux" instantiated to "mux4" is swept in optimizing("/home/arielo/repos/Digital_P/Calculadora/cores/bcd2bin/bcd2bin.v":34)
+WARN  (NL0002) : The module "mux" instantiated to "mux0" is swept in optimizing("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/bin2bcd.v":31)
+WARN  (NL0002) : The module "mux" instantiated to "mux1" is swept in optimizing("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/bin2bcd.v":32)
+WARN  (NL0002) : The module "mux" instantiated to "mux2" is swept in optimizing("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/bin2bcd.v":33)
+WARN  (NL0002) : The module "mux" instantiated to "mux3" is swept in optimizing("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/bin2bcd.v":34)
+WARN  (NL0002) : The module "mux" instantiated to "mux4" is swept in optimizing("/home/arielo/repos/Digital_P/Calculadora/cores/bin2bcd/bin2bcd.v":35)
+WARN  (NL0002) : The module "comp" instantiated to "comp0" is swept in optimizing("/home/arielo/repos/Digital_P/Calculadora/cores/mult_ASM/mult_32.v":22)
+[95%] Generate netlist file "/home/arielo/repos/Digital_P/Calculadora/impl/gwsynthesis/project.vg" completed
+[100%] Generate report file "/home/arielo/repos/Digital_P/Calculadora/impl/gwsynthesis/project_syn.rpt.html" completed
+GowinSynthesis finish
