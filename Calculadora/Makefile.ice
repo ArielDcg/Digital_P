@@ -2,13 +2,13 @@ TARGET=SOC
 TOP=SOC
 
 OBJS = SOC.v
-OBJS+= cores/cpu/femtorv32_quark.v
-OBJS+= cores/uart/perip_uart.v
-OBJS+= cores/uart/uart.v
-OBJS+= cores/mult/perip_mult.v
-OBJS+= cores/mult/mult.v
-OBJS+= cores/dpRAM/dpram.v
-OBJS+= cores/dpRAM/perip_dpram.v
+OBJS+= modulos/cpu/femtorv32_quark.v
+OBJS+= modulos/uart/perip_uart.v
+OBJS+= modulos/uart/uart.v
+OBJS+= modulos/mult/perip_mult.v
+OBJS+= modulos/mult/mult.v
+OBJS+= modulos/dpRAM/dpram.v
+OBJS+= modulos/dpRAM/perip_dpram.v
 
 
 

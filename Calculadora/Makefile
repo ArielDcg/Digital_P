@@ -29,53 +29,53 @@ endif
 
 TCL_SCRIPT = auto_generated.tcl
 
-COMM_OBJS+=  cores/cpu/femtorv32_quark_V2.v
-COMM_OBJS+= cores/uart/perip_uart.v
-COMM_OBJS+= cores/uart/uart.v
+COMM_OBJS+=  modulos/cpu/femtorv32_quark_V2.v
+COMM_OBJS+= modulos/uart/perip_uart.v
+COMM_OBJS+= modulos/uart/uart.v
 
 
 
-COMM_OBJS+= cores/mult_ASM/perip_mult.v
-COMM_OBJS+= cores/mult_ASM/mult_32.v
-COMM_OBJS+= cores/mult_ASM/acc.v
-COMM_OBJS+= cores/mult_ASM/comp.v
-COMM_OBJS+= cores/mult_ASM/lsr_mult.v
-COMM_OBJS+= cores/mult_ASM/control_mult.v
-COMM_OBJS+= cores/mult_ASM/rsr.v
+COMM_OBJS+= modulos/mult_ASM/perip_mult.v
+COMM_OBJS+= modulos/mult_ASM/mult_32.v
+COMM_OBJS+= modulos/mult_ASM/acc.v
+COMM_OBJS+= modulos/mult_ASM/comp.v
+COMM_OBJS+= modulos/mult_ASM/lsr_mult.v
+COMM_OBJS+= modulos/mult_ASM/control_mult.v
+COMM_OBJS+= modulos/mult_ASM/rsr.v
 
 
-COMM_OBJS+= cores/div/perip_div.v
-COMM_OBJS+= cores/div/div.v
+COMM_OBJS+= modulos/div/perip_div.v
+COMM_OBJS+= modulos/div/div.v
 
-COMM_OBJS+= cores/sqrt_ASM/addc2.v
-COMM_OBJS+= cores/sqrt_ASM/count.v
-COMM_OBJS+= cores/sqrt_ASM/lsr.v 
-COMM_OBJS+= cores/sqrt_ASM/perip_sqrt.v
-COMM_OBJS+= cores/sqrt_ASM/sqrt.v
-COMM_OBJS+= cores/sqrt_ASM/lsr2.v
-COMM_OBJS+= cores/sqrt_ASM/control.v
+COMM_OBJS+= modulos/sqrt_ASM/addc2.v
+COMM_OBJS+= modulos/sqrt_ASM/count.v
+COMM_OBJS+= modulos/sqrt_ASM/lsr.v 
+COMM_OBJS+= modulos/sqrt_ASM/perip_sqrt.v
+COMM_OBJS+= modulos/sqrt_ASM/sqrt.v
+COMM_OBJS+= modulos/sqrt_ASM/lsr2.v
+COMM_OBJS+= modulos/sqrt_ASM/control.v
 
-COMM_OBJS+=cores/bin2bcd/add_sub_c2.v
-COMM_OBJS+=cores/bin2bcd/bin2bcd.v
-COMM_OBJS+=cores/bin2bcd/mux2.v
-COMM_OBJS+=cores/bin2bcd/count.v
-COMM_OBJS+=cores/bin2bcd/ctrl_b2b.v  
-COMM_OBJS+=cores/bin2bcd/perip_bin2bcd.v
-COMM_OBJS+=cores/bin2bcd/lsr4.v
-COMM_OBJS+=cores/bin2bcd/reg_msb.v
+COMM_OBJS+=modulos/bin2bcd/add_sub_c2.v
+COMM_OBJS+=modulos/bin2bcd/bin2bcd.v
+COMM_OBJS+=modulos/bin2bcd/mux2.v
+COMM_OBJS+=modulos/bin2bcd/count.v
+COMM_OBJS+=modulos/bin2bcd/ctrl_b2b.v  
+COMM_OBJS+=modulos/bin2bcd/perip_bin2bcd.v
+COMM_OBJS+=modulos/bin2bcd/lsr4.v
+COMM_OBJS+=modulos/bin2bcd/reg_msb.v
 
-COMM_OBJS+=cores/bcd2bin/bcd2bin.v
-COMM_OBJS+=cores/bcd2bin/perip_bcd2bin.v
-COMM_OBJS+=cores/bcd2bin/rsr4.v
-COMM_OBJS += cores/bram/bram.v
+COMM_OBJS+=modulos/bcd2bin/bcd2bin.v
+COMM_OBJS+=modulos/bcd2bin/perip_bcd2bin.v
+COMM_OBJS+=modulos/bcd2bin/rsr4.v
+COMM_OBJS += modulos/bram/bram.v
 COMM_OBJS +=  SOC.v
 
 OBJS += $(COMM_OBJS)
 
 FLASH_OBJS =  $(COMM_OBJS)
-FLASH_OBJS += cores/spi_flash/MappedSPIFlash.v
+FLASH_OBJS += modulos/spi_flash/MappedSPIFlash.v
 FLASH_OBJS += SOC_flash.v
-SIM_OBJS   = cores/sim_spi_flash/spiflash.v
+SIM_OBJS   = modulos/sim_spi_flash/spiflash.v
 
 
 
