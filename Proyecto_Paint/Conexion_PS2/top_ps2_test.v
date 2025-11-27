@@ -26,8 +26,8 @@ module top_ps2_test (
     wire [7:0] debug_data;
     wire debug_busy, debug_ack;
     
-    // Instancia del módulo PS/2
-    ps2_mouse_init mouse_ctrl (
+    // Instancia del controlador PS/2
+    ps2_mouse_controller mouse_ctrl (
         .clk(clk),
         .rst_n(rst_n),
         .ps2_clk(ps2_clk),
