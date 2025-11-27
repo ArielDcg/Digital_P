@@ -29,7 +29,8 @@ endif
 
 TCL_SCRIPT = auto_generated.tcl
 
-COMM_OBJS+=  ps2_mouse_init.v
+COMM_OBJS += top_ps2_test.v
+COMM_OBJS += ps2_mouse_init.v
 
 OBJS += $(COMM_OBJS)
 
