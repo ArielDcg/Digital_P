@@ -12,7 +12,7 @@ parameter PS2_CLK_PERIOD   = 60000; // 60us
    reg ps2_data_tb = 1'bz;
 
    wire [7:0] debug_state;
-   wire [7:0] debug_pins;
+   wire [7:0] debu_pins;
    wire led_init_done;
    wire led_activity;
    wire led_error;
@@ -114,11 +114,16 @@ always #(tck/2) CLK <= ~CLK;
 
       // El mouse espera 
       @(posedge CLK);
-      #(tck*5400000)  //  200ms
+      #(tck*540000)  //  200ms
+
+
 
       // Mouse responde al RESET del host con ACK
       MOUSE_SEND_BYTE(8'hFA);  // ACK
-      #(tck*13500000)  // 500ms BAT
+      #(tck*135000)  // 500ms BAT
+
+/*
+
       MOUSE_SEND_BYTE(8'hAA);  // BAT completion
       #(tck*270)
       MOUSE_SEND_BYTE(8'h00);  // Mouse ID
@@ -131,7 +136,7 @@ always #(tck/2) CLK <= ~CLK;
       // Mouse envia paquetes de movimiento
       // Paquete 1: boton izquierdo presionado, X=+5, Y=-3
       MOUSE_SEND_BYTE(8'b00001001);  // Status byte
-      #(tck*2700)
+      #(tck*2700)ack_received
       MOUSE_SEND_BYTE(8'd5);         // X movement (+5)
       #(tck*2700)
       MOUSE_SEND_BYTE(8'd253);       // Y movement (-3)
@@ -143,7 +148,7 @@ always #(tck/2) CLK <= ~CLK;
       MOUSE_SEND_BYTE(8'd10);        // X movement
       #(tck*2700)
       MOUSE_SEND_BYTE(8'd8);         // Y movement
-
+*/
 
       @(posedge CLK);
       #(tck*900000) $finish;
@@ -151,4 +156,3 @@ always #(tck/2) CLK <= ~CLK;
 
 
 endmodule
-

@@ -95,7 +95,7 @@ module ps2_mouse_init (
             case (state)
                 STATE_IDLE: begin
                     if (delay_counter == 0) begin
-                        delay_counter <= 32'd2700000; // ~100ms @ 27MHz
+                        delay_counter <= 32'd270; // ~100ms @ 27MHz
                     end else begin
                         delay_counter <= delay_counter - 1;
                     end
@@ -117,7 +117,7 @@ module ps2_mouse_init (
 
                 STATE_WAIT_ID: begin
                     if (rx_ready) begin
-                        delay_counter <= 32'd270000; // ~10ms
+                        delay_counter <= 32'd270; // ~10ms
                     end else if (delay_counter > 0) begin
                         delay_counter <= delay_counter - 1;
                     end
@@ -336,7 +336,7 @@ module ps2_transmitter (
                 end
                 
                 TX_SEND_BIT: begin
-                    if (bit_count < 11) begin
+                    if (bit_count < 10) begin
                         if (ps2_clk_negedge) begin
                             ps2_data_out <= tx_shift_reg[0];
                             tx_shift_reg <= {1'b0, tx_shift_reg[10:1]};
