@@ -1,8 +1,5 @@
 module bench();
-// Testbench para mouse PS/2
-// Clock del sistema 27 MHz
-// Simula las respuestas del mouse a los comandos del host
-parameter tck              = 37;   // 27 MHz
+parameter tck              = 37;   // (ns) que correspoden a 27 MHz
 parameter PS2_CLK_PERIOD   = 60000; // 60us
 
    reg CLK;
@@ -21,7 +18,6 @@ parameter PS2_CLK_PERIOD   = 60000; // 60us
    wire led_error;
    wire uart_tx;
 
-   // Pullups para simular resistencias en las lineas PS/2
    assign (weak1, weak0) ps2_clk = 1'b1;
    assign (weak1, weak0) ps2_data = 1'b1;
 
@@ -116,13 +112,13 @@ always #(tck/2) CLK <= ~CLK;
       #80  RST_N = 0;
       #160 RST_N = 1;
 
-      // El mouse espera despues del power-on
+      // El mouse espera 
       @(posedge CLK);
-      #(tck*5400000)  // ~200ms
+      #(tck*5400000)  //  200ms
 
       // Mouse responde al RESET del host con ACK
       MOUSE_SEND_BYTE(8'hFA);  // ACK
-      #(tck*13500000)  // ~500ms BAT
+      #(tck*13500000)  // 500ms BAT
       MOUSE_SEND_BYTE(8'hAA);  // BAT completion
       #(tck*270)
       MOUSE_SEND_BYTE(8'h00);  // Mouse ID
@@ -130,13 +126,13 @@ always #(tck/2) CLK <= ~CLK;
       // Mouse responde al Enable Data Reporting con ACK
       #(tck*2700)
       MOUSE_SEND_BYTE(8'hFA);  // ACK
-      #(tck*27000)  // ~1ms
+      #(tck*27000)  // 1ms
 
       // Mouse envia paquetes de movimiento
       // Paquete 1: boton izquierdo presionado, X=+5, Y=-3
       MOUSE_SEND_BYTE(8'b00001001);  // Status byte
       #(tck*2700)
-      MOUSE_SEND_BYTE(8'd5);         // X movement
+      MOUSE_SEND_BYTE(8'd5);         // X movement (+5)
       #(tck*2700)
       MOUSE_SEND_BYTE(8'd253);       // Y movement (-3)
       #(tck*54000)  // ~2ms
