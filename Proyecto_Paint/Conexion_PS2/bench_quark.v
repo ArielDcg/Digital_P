@@ -18,6 +18,8 @@ parameter PS2_CLK_PERIOD   = 60000; // 60us
    wire led_error;
    wire uart_tx;
 
+   reg [7:0] cmd;
+
    assign (weak1, weak0) ps2_clk = 1'b1;
    assign (weak1, weak0) ps2_data = 1'b1;
 
@@ -150,8 +152,6 @@ always #(tck/2) CLK <= ~CLK;
 
 
    initial begin
-      reg [7:0] cmd;
-
       $dumpfile("bench.vcd");
       $dumpvars(0,bench);
 
