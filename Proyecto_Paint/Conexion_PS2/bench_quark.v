@@ -12,7 +12,7 @@ parameter PS2_CLK_PERIOD   = 60000; // 60us
    reg ps2_data_tb = 1'bz;
 
    wire [7:0] debug_state;
-   wire [7:0] debu_pins;
+   wire [7:0] debug_pins;
    wire led_init_done;
    wire led_activity;
    wire led_error;
@@ -23,6 +23,52 @@ parameter PS2_CLK_PERIOD   = 60000; // 60us
 
    assign ps2_clk = ps2_clk_tb;
    assign ps2_data = ps2_data_tb;
+
+
+  // Simula el mouse recibiendo comando del host y enviando ACK
+  task MOUSE_RECEIVE_CMD;
+    output [7:0] cmd_byte;
+    integer      i;
+    begin
+      cmd_byte = 8'h00;
+
+      // Esperar que el host tome control (baje clock)
+      wait(ps2_clk == 1'b0);
+      // Esperar request to send (host baja data)
+      wait(ps2_data == 1'b0);
+      // Esperar que host libere clock
+      wait(ps2_clk == 1'b1);
+
+      // Leer start bit
+      wait(ps2_clk == 1'b0);
+      #(PS2_CLK_PERIOD/4);
+
+      // Leer 8 bits de datos
+      for (i=0; i<8; i=i+1)
+        begin
+          wait(ps2_clk == 1'b1);
+          wait(ps2_clk == 1'b0);
+          #(PS2_CLK_PERIOD/4);
+          cmd_byte[i] = ps2_data;
+        end
+
+      // Leer paridad
+      wait(ps2_clk == 1'b1);
+      wait(ps2_clk == 1'b0);
+      #(PS2_CLK_PERIOD/4);
+
+      // Leer stop bit
+      wait(ps2_clk == 1'b1);
+      wait(ps2_clk == 1'b0);
+      #(PS2_CLK_PERIOD/4);
+
+      // Enviar ACK (mouse baja data)
+      wait(ps2_clk == 1'b1);
+      ps2_data_tb <= 1'b0;
+      wait(ps2_clk == 1'b0);
+      ps2_data_tb <= 1'bz;
+     end
+  endtask // MOUSE_RECEIVE_CMD
 
 
   // Simula el mouse enviando un byte al host
@@ -104,6 +150,7 @@ always #(tck/2) CLK <= ~CLK;
 
 
    initial begin
+      reg [7:0] cmd;
 
       $dumpfile("bench.vcd");
       $dumpvars(0,bench);
@@ -112,43 +159,44 @@ always #(tck/2) CLK <= ~CLK;
       #80  RST_N = 0;
       #160 RST_N = 1;
 
-      // El mouse espera 
+      // El mouse espera despues del power-on
       @(posedge CLK);
-      #(tck*540000)  //  200ms
+      #(tck*5400000)  // ~200ms
 
+      // Esperar comando RESET (0xFF) del host
+      MOUSE_RECEIVE_CMD(cmd);
+      if (cmd == 8'hFF) begin
+         #(tck*2700)
+         MOUSE_SEND_BYTE(8'hFA);  // ACK
+         #(tck*13500000)  // ~500ms BAT
+         MOUSE_SEND_BYTE(8'hAA);  // BAT completion
+         #(tck*270)
+         MOUSE_SEND_BYTE(8'h00);  // Mouse ID
+      end
 
+      // Esperar comando Enable Data Reporting (0xF4) del host
+      MOUSE_RECEIVE_CMD(cmd);
+      if (cmd == 8'hF4) begin
+         #(tck*2700)
+         MOUSE_SEND_BYTE(8'hFA);  // ACK
+         #(tck*27000)  // ~1ms
 
-      // Mouse responde al RESET del host con ACK
-      MOUSE_SEND_BYTE(8'hFA);  // ACK
-      #(tck*135000)  // 500ms BAT
+         // Mouse envia paquetes de movimiento
+         // Paquete 1: boton izquierdo presionado, X=+5, Y=-3
+         MOUSE_SEND_BYTE(8'b00001001);  // Status byte
+         #(tck*2700)
+         MOUSE_SEND_BYTE(8'd5);         // X movement
+         #(tck*2700)
+         MOUSE_SEND_BYTE(8'd253);       // Y movement (-3)
+         #(tck*54000)  // ~2ms
 
-/*
-
-      MOUSE_SEND_BYTE(8'hAA);  // BAT completion
-      #(tck*270)
-      MOUSE_SEND_BYTE(8'h00);  // Mouse ID
-
-      // Mouse responde al Enable Data Reporting con ACK
-      #(tck*2700)
-      MOUSE_SEND_BYTE(8'hFA);  // ACK
-      #(tck*27000)  // 1ms
-
-      // Mouse envia paquetes de movimiento
-      // Paquete 1: boton izquierdo presionado, X=+5, Y=-3
-      MOUSE_SEND_BYTE(8'b00001001);  // Status byte
-      #(tck*2700)ack_received
-      MOUSE_SEND_BYTE(8'd5);         // X movement (+5)
-      #(tck*2700)
-      MOUSE_SEND_BYTE(8'd253);       // Y movement (-3)
-      #(tck*54000)  // ~2ms
-
-      // Paquete 2: sin botones, X=+10, Y=+8
-      MOUSE_SEND_BYTE(8'b00001000);  // Status byte
-      #(tck*2700)
-      MOUSE_SEND_BYTE(8'd10);        // X movement
-      #(tck*2700)
-      MOUSE_SEND_BYTE(8'd8);         // Y movement
-*/
+         // Paquete 2: sin botones, X=+10, Y=+8
+         MOUSE_SEND_BYTE(8'b00001000);  // Status byte
+         #(tck*2700)
+         MOUSE_SEND_BYTE(8'd10);        // X movement
+         #(tck*2700)
+         MOUSE_SEND_BYTE(8'd8);         // Y movement
+      end
 
       @(posedge CLK);
       #(tck*900000) $finish;
