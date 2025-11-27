@@ -1,7 +1,7 @@
 module bench();
 // Testbench para mouse PS/2
 // Clock del sistema 27 MHz
-// Clock PS/2 aproximadamente 16.7 kHz (60us periodo)
+// Simula las respuestas del mouse a los comandos del host
 parameter tck              = 37;   // 27 MHz
 parameter PS2_CLK_PERIOD   = 60000; // 60us
 
@@ -29,8 +29,8 @@ parameter PS2_CLK_PERIOD   = 60000; // 60us
    assign ps2_data = ps2_data_tb;
 
 
-  // Envia un byte del mouse al host por PS/2
-  task SEND_PS2_BYTE;
+  // Simula el mouse enviando un byte al host
+  task MOUSE_SEND_BYTE;
     input [7:0] data_byte;
     integer     i;
     reg         parity;
@@ -77,53 +77,7 @@ parameter PS2_CLK_PERIOD   = 60000; // 60us
       ps2_clk_tb <= 1'bz;
       ps2_data_tb <= 1'bz;
      end
-  endtask // SEND_PS2_BYTE
-
-
-  // Recibe un comando del host
-  task RECEIVE_HOST_CMD;
-    output [7:0] cmd_byte;
-    integer      i;
-    begin
-      cmd_byte = 8'h00;
-
-      // Esperar que el host tome control del clock
-      wait(ps2_clk == 1'b0);
-      // Esperar request to send
-      wait(ps2_data == 1'b0);
-      // Esperar que libere el clock
-      wait(ps2_clk == 1'b1);
-
-      // Leer start bit
-      wait(ps2_clk == 1'b0);
-      #(PS2_CLK_PERIOD/4);
-
-      // Leer 8 bits de datos
-      for (i=0; i<8; i=i+1)
-        begin
-          wait(ps2_clk == 1'b1);
-          wait(ps2_clk == 1'b0);
-          #(PS2_CLK_PERIOD/4);
-          cmd_byte[i] = ps2_data;
-        end
-
-      // Leer bit de paridad
-      wait(ps2_clk == 1'b1);
-      wait(ps2_clk == 1'b0);
-      #(PS2_CLK_PERIOD/4);
-
-      // Leer stop bit
-      wait(ps2_clk == 1'b1);
-      wait(ps2_clk == 1'b0);
-      #(PS2_CLK_PERIOD/4);
-
-      // Enviar ACK
-      wait(ps2_clk == 1'b1);
-      ps2_data_tb <= 1'b0;
-      wait(ps2_clk == 1'b0);
-      ps2_data_tb <= 1'bz;
-     end
-  endtask // RECEIVE_HOST_CMD
+  endtask // MOUSE_SEND_BYTE
 
 
    top_ps2_test uut(
@@ -150,12 +104,10 @@ always #(tck/2) CLK <= ~CLK;
 	    $display("Estado = %h", debug_state);
 	 end
 	 prev_state <= debug_state;
-
    end
 
 
    initial begin
-      reg [7:0] cmd;
 
       $dumpfile("bench.vcd");
       $dumpvars(0,bench);
@@ -164,45 +116,37 @@ always #(tck/2) CLK <= ~CLK;
       #80  RST_N = 0;
       #160 RST_N = 1;
 
-      // Esperar 200ms despues del power-on (BAT del mouse)
+      // El mouse espera despues del power-on
       @(posedge CLK);
       #(tck*5400000)  // ~200ms
 
-      // Esperar comando de RESET (0xFF) del host
-      RECEIVE_HOST_CMD(cmd);
+      // Mouse responde al RESET del host con ACK
+      MOUSE_SEND_BYTE(8'hFA);  // ACK
+      #(tck*13500000)  // ~500ms BAT
+      MOUSE_SEND_BYTE(8'hAA);  // BAT completion
+      #(tck*270)
+      MOUSE_SEND_BYTE(8'h00);  // Mouse ID
 
-      if (cmd == 8'hFF) begin
-         #(tck*2700)  // pequeno delay
-         SEND_PS2_BYTE(8'hFA);  // ACK
-         #(tck*13500000)  // ~500ms BAT
-         SEND_PS2_BYTE(8'hAA);  // BAT completion
-         #(tck*270)
-         SEND_PS2_BYTE(8'h00);  // Mouse ID
-      end
+      // Mouse responde al Enable Data Reporting con ACK
+      #(tck*2700)
+      MOUSE_SEND_BYTE(8'hFA);  // ACK
+      #(tck*27000)  // ~1ms
 
-      // Esperar comando Enable Data Reporting (0xF4)
-      RECEIVE_HOST_CMD(cmd);
+      // Mouse envia paquetes de movimiento
+      // Paquete 1: boton izquierdo presionado, X=+5, Y=-3
+      MOUSE_SEND_BYTE(8'b00001001);  // Status byte
+      #(tck*2700)
+      MOUSE_SEND_BYTE(8'd5);         // X movement
+      #(tck*2700)
+      MOUSE_SEND_BYTE(8'd253);       // Y movement (-3)
+      #(tck*54000)  // ~2ms
 
-      if (cmd == 8'hF4) begin
-         #(tck*2700)
-         SEND_PS2_BYTE(8'hFA);  // ACK
-         #(tck*27000)  // ~1ms
-
-         // Paquete 1: boton izquierdo presionado, X=+5, Y=-3
-         SEND_PS2_BYTE(8'b00001001);  // Status byte
-         #(tck*2700)
-         SEND_PS2_BYTE(8'd5);         // X movement
-         #(tck*2700)
-         SEND_PS2_BYTE(8'd253);       // Y movement (-3)
-         #(tck*54000)  // ~2ms
-
-         // Paquete 2: sin botones, X=+10, Y=+8
-         SEND_PS2_BYTE(8'b00001000);  // Status byte
-         #(tck*2700)
-         SEND_PS2_BYTE(8'd10);        // X movement
-         #(tck*2700)
-         SEND_PS2_BYTE(8'd8);         // Y movement
-      end
+      // Paquete 2: sin botones, X=+10, Y=+8
+      MOUSE_SEND_BYTE(8'b00001000);  // Status byte
+      #(tck*2700)
+      MOUSE_SEND_BYTE(8'd10);        // X movement
+      #(tck*2700)
+      MOUSE_SEND_BYTE(8'd8);         // Y movement
 
 
       @(posedge CLK);
