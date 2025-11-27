@@ -85,7 +85,7 @@ module ps2_mouse_controller (
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             state <= STATE_IDLE;
-            delay_counter <= 32'd0;
+            delay_counter <= 32'd2700000;  // Iniciar con delay de IDLE
             tx_data_reg <= 8'h00;
             tx_start <= 1'b0;
             init_complete <= 1'b0;
@@ -95,19 +95,21 @@ module ps2_mouse_controller (
             // Control del contador de delay
             case (state)
                 STATE_IDLE: begin
-                    if (delay_counter == 0) begin
-                        delay_counter <= 32'd270; // ~100ms @ 27MHz
-                    end else begin
+                    if (delay_counter > 0) begin
                         delay_counter <= delay_counter - 1;
                     end
                 end
 
                 STATE_RESET_WAIT: begin
-                    if (delay_counter == 0) begin
+                    if (state != next_state) begin
+                        // Entrando a RESET_WAIT, cargar delay
+                        delay_counter <= 32'd27000; // ~1ms
+                    end else if (delay_counter > 0) begin
+                        delay_counter <= delay_counter - 1;
+                    end else begin
+                        // delay_counter == 0, enviar comando
                         tx_data_reg <= 8'hFF;  // Comando RESET
                         tx_start <= 1'b1;
-                    end else begin
-                        delay_counter <= delay_counter - 1;
                     end
                 end
 
@@ -166,7 +168,7 @@ module ps2_mouse_controller (
             end
 
             STATE_RESET_WAIT: begin
-                if (delay_counter == 0) begin
+                if (tx_start) begin
                     next_state = STATE_SEND_RESET;
                 end
             end
