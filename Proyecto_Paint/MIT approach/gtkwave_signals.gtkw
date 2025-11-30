@@ -1,0 +1,66 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*]
+[dumpfile] "tb_mit_ps2_mouse_27mhz.vcd"
+[savefile] "gtkwave_signals.gtkw"
+[timestart] 0
+[size] 1920 1080
+[pos] -1 -1
+*-18.000000 500000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+
+[sst_width] 250
+[signals_width] 250
+[sst_expanded] 1
+[sst_vpaned_height] 300
+
+@28
+tb_mit_ps2_mouse_27mhz.clk
+tb_mit_ps2_mouse_27mhz.reset
+@200
+-
+-PS/2 Bus
+@28
+tb_mit_ps2_mouse_27mhz.ps2_clk
+tb_mit_ps2_mouse_27mhz.ps2_data
+@200
+-
+-Decoded Data
+@28
+tb_mit_ps2_mouse_27mhz.data_ready
+@22
+tb_mit_ps2_mouse_27mhz.x_increment[8:0]
+tb_mit_ps2_mouse_27mhz.y_increment[8:0]
+@28
+tb_mit_ps2_mouse_27mhz.left_button
+tb_mit_ps2_mouse_27mhz.right_button
+@200
+-
+-Internal State
+@22
+tb_mit_ps2_mouse_27mhz.dut.m1_state[2:0]
+tb_mit_ps2_mouse_27mhz.dut.m2_state[3:0]
+tb_mit_ps2_mouse_27mhz.dut.bit_count[5:0]
+@28
+tb_mit_ps2_mouse_27mhz.dut.falling_edge
+tb_mit_ps2_mouse_27mhz.dut.rising_edge
+@200
+-
+-Shift Register
+@22
+tb_mit_ps2_mouse_27mhz.dut.q[32:0]
+@200
+-
+-BFM Control
+@28
+tb_mit_ps2_mouse_27mhz.mouse_clk_en
+tb_mit_ps2_mouse_27mhz.mouse_data_en
+tb_mit_ps2_mouse_27mhz.mouse_clk_drive
+tb_mit_ps2_mouse_27mhz.mouse_data_drive
+@200
+-
+-Error
+@28
+tb_mit_ps2_mouse_27mhz.error_no_ack
+
+[pattern_trace] 1
+[pattern_trace] 0
