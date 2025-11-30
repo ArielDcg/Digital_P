@@ -1,304 +1,298 @@
 `timescale 1ns / 1ps
 
 ////////////////////////////////////////////////////////////////////////////////
-// Testbench para MIT PS/2 Mouse Interface
-// Clock del sistema: 27 MHz (período 37.04 ns)
-// Adaptado del testbench comprehensive con BFM completo
+// Testbench para MIT PS/2 Mouse Interface @ 27MHz
+// Estructura basada en bench_quark.v
 ////////////////////////////////////////////////////////////////////////////////
 
-module tb_mit_ps2_mouse_27mhz;
+module bench();
 
-    // Parámetros de timing para 27MHz
-    // Período del sistema: 1/27MHz = 37.04 ns
-    parameter real CLK_PERIOD = 37.04;  // ns
+// Parámetros de timing
+parameter tck = 37;  // 27 MHz clock period (37 ns)
+parameter PS2_BIT_PERIOD = 60000;  // 60 us per PS/2 bit (~16.7kHz)
 
-    // Cálculo de parámetros para ps2_mouse_interface @ 27MHz:
-    // Watchdog timer: 400 μs / 37.04 ns ≈ 10800 ciclos
-    // Debounce timer: ~3.7 μs / 37.04 ns ≈ 100 ciclos
-    parameter WATCHDOG_TIMER_VALUE = 10800;  // 400 μs @ 27MHz
-    parameter WATCHDOG_TIMER_BITS  = 14;     // 2^14 = 16384 > 10800
-    parameter DEBOUNCE_TIMER_VALUE = 100;    // ~3.7 μs @ 27MHz
-    parameter DEBOUNCE_TIMER_BITS  = 7;      // 2^7 = 128 > 100
+// Parámetros del DUT para 27MHz
+parameter WATCHDOG_TIMER_VALUE = 10800;  // 400 μs @ 27MHz
+parameter WATCHDOG_TIMER_BITS  = 14;
+parameter DEBOUNCE_TIMER_VALUE = 100;    // ~3.7 μs @ 27MHz
+parameter DEBOUNCE_TIMER_BITS  = 7;
 
-    // Señales del Testbench
-    reg clk, reset;
-    wire ps2_clk, ps2_data; // Bidireccionales
+// Señales del sistema
+reg clk;
+reg reset;
 
-    // Señales de salida del DUT
-    wire left_button, right_button;
-    wire [8:0] x_increment, y_increment;
-    wire data_ready;
-    wire error_no_ack;
+// Bus PS/2 (bidireccional con pull-ups)
+wire ps2_clk, ps2_data;
 
-    // Variables internas del BFM (Mouse Simulado)
-    reg mouse_clk_drive, mouse_data_drive;
-    reg mouse_clk_en, mouse_data_en;
+// Señales de salida del DUT
+wire left_button, right_button;
+wire [8:0] x_increment, y_increment;
+wire data_ready;
+wire error_no_ack;
 
-    // Resistencias Pull-up simuladas (Crítico para simular Open Collector)
-    pullup(ps2_clk);
-    pullup(ps2_data);
+// Variables del BFM (Bus Functional Model - Mouse simulado)
+reg mouse_clk_drive, mouse_data_drive;
+reg mouse_clk_en, mouse_data_en;
 
-    // Conexión del bus tri-state del BFM
-    assign ps2_clk = (mouse_clk_en) ? mouse_clk_drive : 1'bz;
-    assign ps2_data = (mouse_data_en) ? mouse_data_drive : 1'bz;
+// Pull-ups (crítico para PS/2 open-collector)
+pullup(ps2_clk);
+pullup(ps2_data);
 
-    // Instancia del DUT MIT con parámetros ajustados para 27MHz
-    ps2_mouse_interface #(
-        .WATCHDOG_TIMER_VALUE_PP(WATCHDOG_TIMER_VALUE),
-        .WATCHDOG_TIMER_BITS_PP(WATCHDOG_TIMER_BITS),
-        .DEBOUNCE_TIMER_VALUE_PP(DEBOUNCE_TIMER_VALUE),
-        .DEBOUNCE_TIMER_BITS_PP(DEBOUNCE_TIMER_BITS)
-    ) dut (
-        .clk(clk),
-        .reset(reset),
-        .ps2_clk(ps2_clk),
-        .ps2_data(ps2_data),
-        .left_button(left_button),
-        .right_button(right_button),
-        .x_increment(x_increment),
-        .y_increment(y_increment),
-        .data_ready(data_ready),
-        .read(1'b1),  // Auto-read mode
-        .error_no_ack(error_no_ack)
-    );
+// Tri-state drivers del BFM
+assign ps2_clk = mouse_clk_en ? mouse_clk_drive : 1'bz;
+assign ps2_data = mouse_data_en ? mouse_data_drive : 1'bz;
 
-    // Generador de Reloj del Sistema: 27 MHz
-    initial clk = 0;
-    always #(CLK_PERIOD/2) clk = ~clk;  // 18.52 ns half period
+// Instancia del DUT (Device Under Test)
+ps2_mouse_interface #(
+    .WATCHDOG_TIMER_VALUE_PP(WATCHDOG_TIMER_VALUE),
+    .WATCHDOG_TIMER_BITS_PP(WATCHDOG_TIMER_BITS),
+    .DEBOUNCE_TIMER_VALUE_PP(DEBOUNCE_TIMER_VALUE),
+    .DEBOUNCE_TIMER_BITS_PP(DEBOUNCE_TIMER_BITS)
+) uut (
+    .clk(clk),
+    .reset(reset),
+    .ps2_clk(ps2_clk),
+    .ps2_data(ps2_data),
+    .left_button(left_button),
+    .right_button(right_button),
+    .x_increment(x_increment),
+    .y_increment(y_increment),
+    .data_ready(data_ready),
+    .read(1'b1),  // Auto-read mode
+    .error_no_ack(error_no_ack)
+);
 
-    // Monitor de señales de salida
-    always @(posedge data_ready) begin
-        $display("[%0t] DATA READY: LB=%b RB=%b X=%d (0x%h) Y=%d (0x%h)",
-                 $time, left_button, right_button,
-                 $signed(x_increment), x_increment,
-                 $signed(y_increment), y_increment);
-    end
+// Generador de clock
+initial clk = 0;
+always #(tck/2) clk = ~clk;
 
-    // Monitor de errores
-    always @(posedge error_no_ack) begin
-        $error("[%0t] ERROR: No ACK recibido del mouse!", $time);
-    end
+// Monitor de datos recibidos
+always @(posedge data_ready) begin
+    $display("[%0t] DATA READY: LB=%b RB=%b X=%d Y=%d",
+             $time, left_button, right_button,
+             $signed(x_increment), $signed(y_increment));
+end
 
-    // --- Tareas del BFM (Bus Functional Model) ---
+// Monitor de errores
+always @(posedge error_no_ack) begin
+    $display("[%0t] ERROR: No ACK from mouse!", $time);
+    $finish;
+end
 
-    // Tarea para enviar un byte desde el Mouse al Host
-    // Protocolo PS/2: Start(0) + 8 Data bits (LSB first) + Parity(odd) + Stop(1)
-    task mouse_send_byte;
-        input [7:0] data;
-        integer i;
-        reg parity;
-        begin
-            parity = ~(^data); // Paridad impar
+// ====================================================================
+// TAREAS DEL BFM (Bus Functional Model - Simula Mouse PS/2)
+// ====================================================================
 
-            $display("[%0t] Mouse enviando byte: 0x%h", $time, data);
+// Tarea: Enviar un byte desde el Mouse al Host
+// Formato PS/2: Start(0) + 8_Data_bits(LSB first) + Parity(odd) + Stop(1)
+task mouse_send_byte;
+    input [7:0] data;
+    integer i;
+    reg parity;
+    begin
+        parity = ~(^data); // Paridad impar
 
-            // 1. Start Bit (Data Low, Clock pulse)
-            mouse_data_drive = 0;
-            mouse_data_en = 1; // Data Low
-            #20000; // Tiempo antes de bajar el reloj
-            mouse_clk_drive = 0;
-            mouse_clk_en = 1; // CLK Low
-            #40000; // Período bajo del reloj (40 μs)
-            mouse_clk_drive = 1;
-            mouse_clk_en = 0; // CLK High (Float con pull-up)
-            #20000; // Período alto del reloj
-
-            // 2. Data Bits (LSB first)
-            for (i=0; i<8; i=i+1) begin
-                mouse_data_drive = data[i];
-                #20000;
-                mouse_clk_drive = 0;
-                mouse_clk_en = 1;
-                #40000;
-                mouse_clk_drive = 1;
-                mouse_clk_en = 0;
-                #20000;
-            end
-
-            // 3. Parity Bit
-            mouse_data_drive = parity;
-            #20000;
-            mouse_clk_drive = 0;
-            mouse_clk_en = 1;
-            #40000;
-            mouse_clk_drive = 1;
-            mouse_clk_en = 0;
-            #20000;
-
-            // 4. Stop Bit (Data High)
-            mouse_data_drive = 1;
-            #20000;
-            mouse_clk_drive = 0;
-            mouse_clk_en = 1;
-            #40000;
-            mouse_clk_drive = 1;
-            mouse_clk_en = 0;
-            #20000;
-
-            mouse_data_en = 0; // Liberar bus de datos
-            #50000; // Delay entre bytes
-        end
-    endtask
-
-    // Tarea para enviar un paquete completo de movimiento del mouse
-    task mouse_send_movement;
-        input [7:0] status_byte;  // YOvf, XOvf, YSign, XSign, 1, MBtn, RBtn, LBtn
-        input [7:0] x_movement;
-        input [7:0] y_movement;
-        begin
-            $display("[%0t] === Enviando paquete de movimiento ===", $time);
-            mouse_send_byte(status_byte);
-            mouse_send_byte(x_movement);
-            mouse_send_byte(y_movement);
-            $display("[%0t] === Paquete enviado ===", $time);
-        end
-    endtask
-
-    // Tarea para esperar comando del Host y enviar ACK
-    task expect_host_command;
-        input [7:0] expected_cmd;
-        reg [7:0] received_cmd;
-        integer i;
-        begin
-            $display("[%0t] Esperando comando del host...", $time);
-
-            // Esperar inhibición del Host (CLK Low por más de 100μs)
-            wait(ps2_clk === 0);
-            #150000; // Esperar > 100μs de inhibición
-            $display("[%0t] Host inhibición detectada.", $time);
-
-            // Esperar que host suelte CLK y baje DATA (Start bit)
-            wait(ps2_clk === 1);
-            #10000;
-            wait(ps2_data === 0);
-            $display("[%0t] Start bit del Host detectado.", $time);
-
-            // El Mouse genera el reloj para leer los datos del Host
-            received_cmd = 0;
-            #20000;
-
-            for (i=0; i<8; i=i+1) begin
-                // Generar pulso de reloj (el mouse controla el reloj durante recepción)
-                mouse_clk_drive = 0;
-                mouse_clk_en = 1;
-                #20000; // Sample en medio del período bajo
-                received_cmd[i] = ps2_data;
-                #20000;
-                mouse_clk_drive = 1;
-                mouse_clk_en = 0;
-                #20000;
-            end
-
-            // Leer bit de paridad
-            mouse_clk_drive = 0;
-            mouse_clk_en = 1;
-            #40000;
-            mouse_clk_drive = 1;
-            mouse_clk_en = 0;
-            #20000;
-
-            // Leer stop bit
-            mouse_clk_drive = 0;
-            mouse_clk_en = 1;
-            #40000;
-            mouse_clk_drive = 1;
-            mouse_clk_en = 0;
-            #20000;
-
-            // Enviar ACK Bit (Mouse tira Data Low)
-            mouse_data_drive = 0;
-            mouse_data_en = 1;
-            mouse_clk_drive = 0;
-            mouse_clk_en = 1;
-            #40000;
-            mouse_clk_drive = 1;
-            mouse_clk_en = 0;
-            #20000;
-            mouse_data_en = 0; // Liberar DATA
-            mouse_clk_en = 0;  // Liberar CLK
-
-            if (received_cmd == expected_cmd)
-                $display("[%0t] Comando correcto recibido: 0x%h", $time, received_cmd);
-            else
-                $error("[%0t] Error! Esperaba 0x%h, recibió 0x%h", $time, expected_cmd, received_cmd);
-        end
-    endtask
-
-    // --- Secuencia Principal de Prueba ---
-    initial begin
-        // Configurar dump de señales para visualización
-        $dumpfile("tb_mit_ps2_mouse_27mhz.vcd");
-        $dumpvars(0, tb_mit_ps2_mouse_27mhz);
-
-        // Inicialización
-        clk = 0;
-        reset = 1;
-        mouse_clk_en = 0;
-        mouse_data_en = 0;
+        // Start Bit
+        mouse_data_drive = 0;
+        mouse_data_en = 1;
+        #(PS2_BIT_PERIOD/3);
+        mouse_clk_drive = 0;
+        mouse_clk_en = 1;
+        #(PS2_BIT_PERIOD*2/3);
         mouse_clk_drive = 1;
+        mouse_clk_en = 0;
+
+        // 8 Data Bits (LSB first)
+        for (i=0; i<8; i=i+1) begin
+            mouse_data_drive = data[i];
+            #(PS2_BIT_PERIOD/3);
+            mouse_clk_drive = 0;
+            mouse_clk_en = 1;
+            #(PS2_BIT_PERIOD*2/3);
+            mouse_clk_drive = 1;
+            mouse_clk_en = 0;
+        end
+
+        // Parity Bit
+        mouse_data_drive = parity;
+        #(PS2_BIT_PERIOD/3);
+        mouse_clk_drive = 0;
+        mouse_clk_en = 1;
+        #(PS2_BIT_PERIOD*2/3);
+        mouse_clk_drive = 1;
+        mouse_clk_en = 0;
+
+        // Stop Bit
         mouse_data_drive = 1;
+        #(PS2_BIT_PERIOD/3);
+        mouse_clk_drive = 0;
+        mouse_clk_en = 1;
+        #(PS2_BIT_PERIOD*2/3);
+        mouse_clk_drive = 1;
+        mouse_clk_en = 0;
 
-        #200 reset = 0;
-        $display("\n========================================");
-        $display("  Test MIT PS/2 Mouse @ 27MHz");
-        $display("========================================\n");
+        mouse_data_en = 0; // Liberar DATA
+        #(PS2_BIT_PERIOD); // Inter-byte delay
+    end
+endtask
 
-        // 1. Simular Power-On secuencia del Mouse
-        #500000; // Tiempo de encendido realista
-        $display("[%0t] 1. Enviando BAT (Basic Assurance Test) = 0xAA", $time);
-        mouse_send_byte(8'hAA);
+// Tarea: Esperar y recibir comando del Host, luego enviar ACK
+task receive_host_command;
+    output [7:0] received_cmd;
+    integer i;
+    begin
+        received_cmd = 0;
 
-        $display("[%0t] 2. Enviando Device ID = 0x00 (Standard Mouse)", $time);
-        mouse_send_byte(8'h00);
+        // Esperar que el Host inhiba el bus (CLK low)
+        wait(ps2_clk === 0);
+        $display("[%0t] Host inhibiting bus (CLK low)...", $time);
+        #(PS2_BIT_PERIOD*2); // Esperar inhibición
 
-        // 2. Esperar que el Host envíe comando de habilitación (0xF4)
-        #100000;
-        $display("[%0t] 3. Esperando comando de habilitación (0xF4) del Host...", $time);
-        expect_host_command(8'hF4);
+        // Esperar que Host libere CLK y baje DATA (start bit)
+        wait(ps2_clk === 1);
+        #(PS2_BIT_PERIOD/4);
 
-        // 3. Responder con ACK (0xFA)
-        #200000;
-        $display("[%0t] 4. Enviando ACK (0xFA)", $time);
-        mouse_send_byte(8'hFA);
+        if (ps2_data !== 0) begin
+            $display("[%0t] WARNING: Start bit no detectado!", $time);
+        end
 
-        // 4. Stream Mode: Enviar varios paquetes de movimiento
-        #500000;
+        // Mouse genera los pulsos de reloj para leer el comando
+        for (i=0; i<8; i=i+1) begin
+            #(PS2_BIT_PERIOD/3);
+            mouse_clk_drive = 0;
+            mouse_clk_en = 1;
+            #(PS2_BIT_PERIOD/6);
+            received_cmd[i] = ps2_data; // Sample en medio del CLK low
+            #(PS2_BIT_PERIOD/6);
+            mouse_clk_drive = 1;
+            mouse_clk_en = 0;
+            #(PS2_BIT_PERIOD/3);
+        end
 
-        // Paquete 1: Movimiento X=+5, Y=-1, sin botones
-        // Status: YSign=1 (negativo), XSign=0 (positivo), Always1=1
-        // Bit 3 debe ser siempre 1
-        // [7:YOvf 6:XOvf 5:YSign 4:XSign 3:1 2:MBtn 1:RBtn 0:LBtn]
-        $display("[%0t] 5. Enviando paquete 1: X=+5, Y=-1, sin botones", $time);
-        mouse_send_movement(8'b00101000, 8'd5, 8'hFF);  // Y=-1 en complemento a 2
-        #1000000;
+        // Leer Parity bit
+        #(PS2_BIT_PERIOD/3);
+        mouse_clk_drive = 0;
+        mouse_clk_en = 1;
+        #(PS2_BIT_PERIOD*2/3);
+        mouse_clk_drive = 1;
+        mouse_clk_en = 0;
 
-        // Paquete 2: Movimiento X=-10, Y=+20, botón izquierdo presionado
-        $display("[%0t] 6. Enviando paquete 2: X=-10, Y=+20, botón izquierdo", $time);
-        mouse_send_movement(8'b00011001, 8'hF6, 8'd20);  // X=-10 en complemento a 2
-        #1000000;
+        // Leer Stop bit
+        #(PS2_BIT_PERIOD/3);
+        mouse_clk_drive = 0;
+        mouse_clk_en = 1;
+        #(PS2_BIT_PERIOD*2/3);
+        mouse_clk_drive = 1;
+        mouse_clk_en = 0;
+        #(PS2_BIT_PERIOD/3);
 
-        // Paquete 3: Sin movimiento, botón derecho presionado
-        $display("[%0t] 7. Enviando paquete 3: Sin movimiento, botón derecho", $time);
-        mouse_send_movement(8'b00001010, 8'd0, 8'd0);
-        #1000000;
+        // Enviar ACK (Mouse pull DATA low)
+        mouse_data_drive = 0;
+        mouse_data_en = 1;
+        mouse_clk_drive = 0;
+        mouse_clk_en = 1;
+        #(PS2_BIT_PERIOD*2/3);
+        mouse_clk_drive = 1;
+        mouse_clk_en = 0;
+        #(PS2_BIT_PERIOD/3);
+        mouse_data_en = 0;
+        mouse_clk_en = 0;
 
-        // Paquete 4: Movimiento grande X=+127, Y=-128
-        $display("[%0t] 8. Enviando paquete 4: X=+127, Y=-128", $time);
-        mouse_send_movement(8'b00101000, 8'd127, 8'h80);
-        #1000000;
+        $display("[%0t] Mouse received command: 0x%h", $time, received_cmd);
+    end
+endtask
 
-        $display("\n========================================");
-        $display("  Simulación completada exitosamente");
-        $display("========================================\n");
-        #500000;
+// Tarea: Enviar paquete de movimiento completo (3 bytes)
+task mouse_send_packet;
+    input [7:0] status;  // [YOvf XOvf YSign XSign 1 MBtn RBtn LBtn]
+    input [7:0] x_mov;
+    input [7:0] y_mov;
+    begin
+        mouse_send_byte(status);
+        mouse_send_byte(x_mov);
+        mouse_send_byte(y_mov);
+    end
+endtask
+
+// ====================================================================
+// SECUENCIA DE PRUEBA
+// ====================================================================
+
+integer idx;
+reg [7:0] cmd;
+
+initial begin
+    // Dump de señales
+    $dumpfile("bench.vcd");
+    $dumpvars(0, bench);
+
+    // Inicialización
+    #0 clk = 0;
+    #0 reset = 1;
+    #0 mouse_clk_en = 0;
+    #0 mouse_data_en = 0;
+    #0 mouse_clk_drive = 1;
+    #0 mouse_data_drive = 1;
+
+    // Reset pulse
+    #(tck*10) reset = 1;
+    #(tck*20) reset = 0;
+
+    $display("\n========================================");
+    $display("  MIT PS/2 Mouse Test @ 27MHz");
+    $display("========================================\n");
+
+    // El módulo MIT envía automáticamente 0xF4 después del reset
+    // El mouse debe recibirlo y responder con ACK
+
+    #(tck*1000);
+    $display("[%0t] Esperando comando 0xF4 del host...", $time);
+    receive_host_command(cmd);
+
+    if (cmd == 8'hF4) begin
+        $display("[%0t] OK: Comando 0xF4 recibido correctamente", $time);
+    end else begin
+        $display("[%0t] ERROR: Esperaba 0xF4, recibió 0x%h", $time, cmd);
+        #(tck*1000);
         $finish;
     end
 
-    // Timeout de seguridad
-    initial begin
-        #50000000; // 50 ms timeout
-        $display("\n*** TIMEOUT: La simulación excedió el tiempo máximo ***");
-        $finish;
-    end
+    // Enviar ACK
+    #(PS2_BIT_PERIOD*2);
+    $display("[%0t] Enviando ACK (0xFA)...", $time);
+    mouse_send_byte(8'hFA);
+
+    // Ahora el mouse está en Stream Mode
+    // Enviar varios paquetes de movimiento
+
+    #(PS2_BIT_PERIOD*5);
+    $display("[%0t] Paquete 1: X=+5, Y=-1, sin botones", $time);
+    mouse_send_packet(8'b00101000, 8'd5, 8'hFF);
+
+    #(PS2_BIT_PERIOD*5);
+    $display("[%0t] Paquete 2: X=-10, Y=+20, botón izq", $time);
+    mouse_send_packet(8'b00011001, 8'hF6, 8'd20);
+
+    #(PS2_BIT_PERIOD*5);
+    $display("[%0t] Paquete 3: X=0, Y=0, botón der", $time);
+    mouse_send_packet(8'b00001010, 8'd0, 8'd0);
+
+    #(PS2_BIT_PERIOD*5);
+    $display("[%0t] Paquete 4: X=+127, Y=-128", $time);
+    mouse_send_packet(8'b00101000, 8'd127, 8'h80);
+
+    #(tck*100000);
+    $display("\n========================================");
+    $display("  Test completado");
+    $display("========================================\n");
+    $finish;
+end
+
+// Timeout de seguridad
+initial begin
+    #(tck*5000000); // 185 ms timeout
+    $display("\n*** TIMEOUT ***");
+    $finish;
+end
 
 endmodule
