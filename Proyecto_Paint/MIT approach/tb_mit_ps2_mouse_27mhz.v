@@ -9,7 +9,7 @@ module bench();
 
 // Parámetros de timing
 parameter tck = 37;  // 27 MHz clock period (37 ns)
-parameter PS2_BIT_PERIOD = 60000;  // 60 us per PS/2 bit (~16.7kHz)
+parameter PS2_BIT_PERIOD = 6000;  // 6 us per PS/2 bit (10x faster for simulation)
 
 // Parámetros del DUT para 27MHz
 parameter WATCHDOG_TIMER_VALUE = 10800;  // 400 μs @ 27MHz
@@ -168,23 +168,9 @@ task receive_host_command;
 
         // Esperar que CLK vuelva a HIGH
         wait(ps2_clk === 1);
+
+        $display("[%0t] Comando recibido: 0x%h", $time, received_cmd);
         #(PS2_BIT_PERIOD);
-
-        // Ahora el mouse envía ACK
-        $display("[%0t] Comando recibido: 0x%h, enviando ACK...", $time, received_cmd);
-
-        mouse_data_drive = 0;
-        mouse_data_en = 1;
-        #(PS2_BIT_PERIOD/3);
-        mouse_clk_drive = 0;
-        mouse_clk_en = 1;
-        #(PS2_BIT_PERIOD*2/3);
-        mouse_clk_drive = 1;
-        mouse_clk_en = 0;
-        #(PS2_BIT_PERIOD/3);
-        mouse_data_en = 0;
-
-        #(PS2_BIT_PERIOD*2);
     end
 endtask
 
