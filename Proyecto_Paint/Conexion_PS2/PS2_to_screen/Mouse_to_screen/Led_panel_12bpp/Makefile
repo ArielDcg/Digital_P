@@ -10,7 +10,8 @@ COMM_OBJS += memory_V2.v
 COMM_OBJS += comp.v
 COMM_OBJS += lsr_led.v
 COMM_OBJS += mux_led.v
-
+COMM_OBJS += Mouse_to_screen.v
+COMM_OBJS += mult.v
 
 SIM_OBJS =  ../../verilog_model/sky130_fd_sc_hd.v
 SIM_OBJS += ../../verilog_model/primitives.v

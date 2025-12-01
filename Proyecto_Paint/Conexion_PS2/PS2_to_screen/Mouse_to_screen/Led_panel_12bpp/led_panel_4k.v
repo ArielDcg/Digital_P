@@ -46,7 +46,7 @@ parameter DELAY = 20;
 wire [($clog2(NUM_COLS)-1):0]		COL;
 // ----------------------------------------------
 
-wire [11:0] PIX_ADDR;
+wire [10:0] PIX_ADDR;
 wire [23:0] mem_data;
 
 
@@ -76,7 +76,7 @@ reg [4:0] clk_counter;
 
     assign LP_CLK = clk1 & PX_CLK_EN;
 
-    count #(.width(( $clog2(HALF_SCREEN) -1) ))  count_row(  .clk(clk1), .reset(w_RST_R), .inc(w_INC_R), .outc(ROW),   .zero(w_ZR) );
+    count #(.width(4))  count_row(  .clk(clk1), .reset(w_RST_R), .inc(w_INC_R), .outc(ROW),   .zero(w_ZR) );
     count #(.width(($clog2(NUM_COLS)     -1) ))  count_col(  .clk(clk1), .reset(w_RST_C), .inc(w_INC_C), .outc(COL),   .zero(w_ZC) );
     count #(.width (10))   cnt_delay(  .clk(clk1), .reset(w_RST_D), .inc(w_INC_D), .outc(count_delay));
     count #(.width (1))   count_index( .clk(clk1), .reset(w_RST_I), .inc(w_INC_I), .outc(index), .zero(w_ZI));

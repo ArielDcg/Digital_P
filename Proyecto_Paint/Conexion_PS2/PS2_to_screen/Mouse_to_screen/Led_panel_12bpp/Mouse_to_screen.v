@@ -10,11 +10,11 @@ module Mouse_to_screen#(
     input [8:0]        PS2_Xdata,
     input [8:0]        PS2_Ydata,
     input  [11:0]      b_rdata0,
-    input  [11:0]      b_rdata1
+    input  [11:0]      b_rdata1,
     output reg         wr0,
     output reg         wr1,
     output reg [11:0]  wdata,
-    output reg [11:0]  address,
+    output reg [11:0]  address
 );
 
 reg [2:0] estado; 
@@ -59,7 +59,7 @@ wire [11:0] y_mult_result = result_mult[11:0];
 wire [11:0] dir_actual = y_mult_result + x_fin; 
 wire movimiento_detectado = (dir_actual != dir_anterior) && (estado == START);
 
-//Aplicaciòn del modulo de aplicaciòn
+//Aplicaciòn del modulo de multiplicaciòn
 mult u_multiplier (
     .clk    (clk),
     .reset  (reset),
