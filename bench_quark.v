@@ -118,34 +118,38 @@ module bench_quark();
             #(PS2_CLK_PERIOD * 2);
 
             // Start bit (0)
-            ps2_clk_in = 0;
-            ps2_data_in = 0;
+            ps2_data_in = 0;  // Primero establecer el dato
+            #(PS2_CLK_PERIOD/4);  // Setup time
+            ps2_clk_in = 0;   // Luego bajar el clock
             #(PS2_CLK_PERIOD/2);
             ps2_clk_in = 1;
-            #(PS2_CLK_PERIOD/2);
+            #(PS2_CLK_PERIOD/4);
 
             // 8 bits de datos (LSB first)
             for (i = 0; i < 8; i = i + 1) begin
-                ps2_clk_in = 0;
-                ps2_data_in = data[i];
+                ps2_data_in = data[i];  // Primero establecer el dato
+                #(PS2_CLK_PERIOD/4);  // Setup time
+                ps2_clk_in = 0;  // Luego bajar el clock
                 #(PS2_CLK_PERIOD/2);
                 ps2_clk_in = 1;
-                #(PS2_CLK_PERIOD/2);
+                #(PS2_CLK_PERIOD/4);
             end
 
             // Bit de paridad
-            ps2_clk_in = 0;
-            ps2_data_in = parity;
+            ps2_data_in = parity;  // Primero establecer el dato
+            #(PS2_CLK_PERIOD/4);  // Setup time
+            ps2_clk_in = 0;  // Luego bajar el clock
             #(PS2_CLK_PERIOD/2);
             ps2_clk_in = 1;
-            #(PS2_CLK_PERIOD/2);
+            #(PS2_CLK_PERIOD/4);
 
             // Stop bit (1)
-            ps2_clk_in = 0;
-            ps2_data_in = 1;
+            ps2_data_in = 1;  // Primero establecer el dato
+            #(PS2_CLK_PERIOD/4);  // Setup time
+            ps2_clk_in = 0;  // Luego bajar el clock
             #(PS2_CLK_PERIOD/2);
             ps2_clk_in = 1;
-            #(PS2_CLK_PERIOD/2);
+            #(PS2_CLK_PERIOD/4);
 
             // Pequeña pausa entre bytes
             #(PS2_CLK_PERIOD);
@@ -293,27 +297,28 @@ module bench_quark();
 
         $display("Enviando byte con paridad incorrecta...");
         // Enviar manualmente un byte con paridad incorrecta
-        ps2_clk_in = 0;
         ps2_data_in = 0;  // Start bit
+        #(PS2_CLK_PERIOD/4);
+        ps2_clk_in = 0;
         #(PS2_CLK_PERIOD/2);
         ps2_clk_in = 1;
-        #(PS2_CLK_PERIOD/2);
+        #(PS2_CLK_PERIOD/4);
 
-        // Datos: 0xAA
-        ps2_clk_in = 0; ps2_data_in = 0; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/2);
-        ps2_clk_in = 0; ps2_data_in = 1; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/2);
-        ps2_clk_in = 0; ps2_data_in = 0; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/2);
-        ps2_clk_in = 0; ps2_data_in = 1; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/2);
-        ps2_clk_in = 0; ps2_data_in = 0; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/2);
-        ps2_clk_in = 0; ps2_data_in = 1; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/2);
-        ps2_clk_in = 0; ps2_data_in = 0; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/2);
-        ps2_clk_in = 0; ps2_data_in = 1; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/2);
+        // Datos: 0xAA (LSB primero: 0,1,0,1,0,1,0,1)
+        ps2_data_in = 0; #(PS2_CLK_PERIOD/4); ps2_clk_in = 0; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/4);
+        ps2_data_in = 1; #(PS2_CLK_PERIOD/4); ps2_clk_in = 0; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/4);
+        ps2_data_in = 0; #(PS2_CLK_PERIOD/4); ps2_clk_in = 0; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/4);
+        ps2_data_in = 1; #(PS2_CLK_PERIOD/4); ps2_clk_in = 0; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/4);
+        ps2_data_in = 0; #(PS2_CLK_PERIOD/4); ps2_clk_in = 0; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/4);
+        ps2_data_in = 1; #(PS2_CLK_PERIOD/4); ps2_clk_in = 0; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/4);
+        ps2_data_in = 0; #(PS2_CLK_PERIOD/4); ps2_clk_in = 0; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/4);
+        ps2_data_in = 1; #(PS2_CLK_PERIOD/4); ps2_clk_in = 0; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/4);
 
         // Paridad incorrecta (debería ser 1 para 0xAA, enviamos 0)
-        ps2_clk_in = 0; ps2_data_in = 0; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/2);
+        ps2_data_in = 0; #(PS2_CLK_PERIOD/4); ps2_clk_in = 0; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/4);
 
         // Stop bit
-        ps2_clk_in = 0; ps2_data_in = 1; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/2);
+        ps2_data_in = 1; #(PS2_CLK_PERIOD/4); ps2_clk_in = 0; #(PS2_CLK_PERIOD/2); ps2_clk_in = 1; #(PS2_CLK_PERIOD/4);
 
         #(PS2_CLK_PERIOD * 5);
         $display("Debe haberse detectado error de paridad.\n");
