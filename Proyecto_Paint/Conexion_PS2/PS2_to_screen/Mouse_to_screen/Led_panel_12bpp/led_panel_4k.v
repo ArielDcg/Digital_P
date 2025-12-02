@@ -43,7 +43,7 @@ parameter BIT_DEPTH = 4;
 parameter TOTAL_BIT_DEPTH = 3*BIT_DEPTH;
 parameter DELAY = 20;
 
-wire [($clog2(NUM_COLS)-1):0]		COL;
+wire [5:0]		COL;
 // ----------------------------------------------
 
 wire [10:0] PIX_ADDR;
@@ -77,7 +77,7 @@ reg [4:0] clk_counter;
     assign LP_CLK = clk1 & PX_CLK_EN;
 
     count #(.width(4))  count_row(  .clk(clk1), .reset(w_RST_R), .inc(w_INC_R), .outc(ROW),   .zero(w_ZR) );
-    count #(.width(($clog2(NUM_COLS)     -1) ))  count_col(  .clk(clk1), .reset(w_RST_C), .inc(w_INC_C), .outc(COL),   .zero(w_ZC) );
+    count #(.width(5))  count_col(  .clk(clk1), .reset(w_RST_C), .inc(w_INC_C), .outc(COL),   .zero(w_ZC) );
     count #(.width (10))   cnt_delay(  .clk(clk1), .reset(w_RST_D), .inc(w_INC_D), .outc(count_delay));
     count #(.width (1))   count_index( .clk(clk1), .reset(w_RST_I), .inc(w_INC_I), .outc(index), .zero(w_ZI));
     lsr_led #(.init_value(DELAY), .width(10)) lsr_led0( .clk(clk1), .load(w_LD), .shift(w_SHD), .s_A(delay));

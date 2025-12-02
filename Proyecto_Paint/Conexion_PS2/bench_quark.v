@@ -257,7 +257,7 @@ module bench_quark();
         #(PS2_CLK_PERIOD * 10);
 
         // Paquete 2: Movimiento (+10, +10), botón izquierdo presionado
-        send_mouse_packet(9'd10, 9'd10, 1'b1, 1'b0, 1'b0);
+        send_mouse_packet(9'd10, 9'd10, 1'b1, 1'b0, 1'b1);
         #(PS2_CLK_PERIOD * 10);
 
         // Paquete 3: Movimiento (+15, +15), botón derecho presionado

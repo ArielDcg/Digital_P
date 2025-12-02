@@ -75,10 +75,7 @@ module ctrl_lp4k(
       end
 
       NEXT_DELAY: begin
-        if(ZI)
-          state = INC_ROW;
-        else
-          state = GET_PIXEL;
+        state = INC_ROW;
       end
 
       INC_ROW: begin
