@@ -29,7 +29,7 @@ endif
 
 TCL_SCRIPT = auto_generated.tcl
 
-COMM_OBJS+=  ps2_mouse_init.v
+COMM_OBJS+=  ps2_mouse_init.v top_ps2_test.v
 
 OBJS += $(COMM_OBJS)
 
@@ -48,13 +48,13 @@ sim_quark:
 	rm -f a.out *.vcd
 	iverilog -DBENCH  bench_quark.v $(OBJS)
 	vvp a.out
-	gtkwave bench.vcd
+	gtkwave bench_quark.vcd
 
 sim_quark_flash:
 	rm -f a.out *.vcd
 	iverilog -DBENCH -DSIM -DPASSTHROUGH_PLL -DBOARD_FREQ=27 -DCPU_FREQ=27 bench_quark_flash.v $(FLASH_OBJS) $(SIM_OBJS)
 	vvp a.out
-	gtkwave bench.vcd
+	gtkwave bench_quark.vcd
 
 sim_verilator: 
 	verilator -CFLAGS '-I../libfemtorv32/ -DSTANDALONE_FEMTOELF' -DBENCH -DBOARD_FREQ=10 -DCPU_FREQ=10 -DPASSTHROUGH_PLL -Wno-fatal \
@@ -75,7 +75,7 @@ sim_post_syn_quark:  $(OBJS)
 #	iverilog -g2012 -DSYNTH -o $@_PS.vpp -s bench  bench_quark.v $(TOP)_synth.v $(ICE40_SIM_CELLS)
 
 	vvp $@_PS.vpp
-	gtkwave bench.vcd &
+	gtkwave bench_quark.vcd &
 
 sim_post_syn_quark_efx:  $(OBJS)
 	rm -f *vpp *.vcd

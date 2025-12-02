@@ -4,11 +4,11 @@
 module ps2_mouse_init (
     input  wire clk,           // Clock del sistema (27MHz en Tang Primer 25K)
     input  wire rst_n,         // Reset activo en bajo
-    
+
     // Interfaz PS/2 bidireccional
     inout  wire ps2_clk,       // Clock PS/2 (bidireccional)
     inout  wire ps2_data,      // Data PS/2 (bidireccional)
-    
+
     // Señales de debug para analizador lógico
     output wire [7:0] debug_state,    // Estado actual de la FSM
     output wire [7:0] debug_data,     // Datos siendo transmitidos/recibidos
@@ -16,7 +16,14 @@ module ps2_mouse_init (
     output wire debug_ack,             // ACK recibido del mouse
     output wire init_done,             // Inicialización completa
     output wire [7:0] rx_data,         // Datos recibidos del mouse
-    output wire rx_data_valid          // Pulso cuando hay datos válidos
+    output wire rx_data_valid,         // Pulso cuando hay datos válidos
+
+    // Nuevas salidas para datos del mouse
+    output wire [8:0] mouse_x,         // Movimiento X (9 bits con signo)
+    output wire [8:0] mouse_y,         // Movimiento Y (9 bits con signo)
+    output wire [2:0] buttons,         // Botones [2:0] = [Middle, Right, Left]
+    output wire packet_ready,          // Pulso cuando hay paquete válido completo
+    output wire rx_error               // Error de paridad del receptor
 );
 
     // Estados de la máquina de estados
@@ -44,6 +51,19 @@ module ps2_mouse_init (
     // Señales del receptor PS/2
     wire [7:0] rx_byte;
     wire rx_ready;
+    wire rx_parity_error;
+
+    // Registros para acumular paquete de 3 bytes del mouse
+    reg [7:0] packet_byte1;  // Status byte
+    reg [7:0] packet_byte2;  // X movement
+    reg [7:0] packet_byte3;  // Y movement
+    reg [1:0] byte_counter;  // Contador de bytes en el paquete
+    reg packet_valid;        // Pulso cuando paquete completo y válido
+
+    // Salidas procesadas del mouse
+    reg [8:0] mouse_x_reg;
+    reg [8:0] mouse_y_reg;
+    reg [2:0] buttons_reg;
     
     // Control bidireccional de las líneas PS/2
     wire ps2_clk_out, ps2_data_out;
@@ -77,7 +97,8 @@ module ps2_mouse_init (
         .ps2_clk(ps2_clk),
         .ps2_data(ps2_data),
         .rx_data(rx_byte),
-        .rx_ready(rx_ready)
+        .rx_ready(rx_ready),
+        .rx_error(rx_parity_error)
     );
     
     // Máquina de estados principal
@@ -213,6 +234,68 @@ module ps2_mouse_init (
         endcase
     end
     
+    // Procesamiento de paquetes del mouse en stream mode
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            byte_counter <= 2'd0;
+            packet_byte1 <= 8'd0;
+            packet_byte2 <= 8'd0;
+            packet_byte3 <= 8'd0;
+            packet_valid <= 1'b0;
+            mouse_x_reg <= 9'd0;
+            mouse_y_reg <= 9'd0;
+            buttons_reg <= 3'd0;
+        end else begin
+            packet_valid <= 1'b0;  // Pulso de un ciclo
+
+            // Solo procesar paquetes en stream mode y sin errores de paridad
+            if (state == STATE_STREAM_MODE && rx_ready && !rx_parity_error) begin
+                case (byte_counter)
+                    2'd0: begin
+                        // Primer byte (status) - verificar que bit 3 está en 1
+                        if (rx_byte[3]) begin
+                            packet_byte1 <= rx_byte;
+                            byte_counter <= 2'd1;
+                        end
+                        // Si bit 3 no está en 1, descartar y esperar siguiente byte
+                    end
+
+                    2'd1: begin
+                        // Segundo byte (X movement)
+                        packet_byte2 <= rx_byte;
+                        byte_counter <= 2'd2;
+                    end
+
+                    2'd2: begin
+                        // Tercer byte (Y movement)
+                        packet_byte3 <= rx_byte;
+                        byte_counter <= 2'd0;
+
+                        // Extraer datos del paquete completo
+                        // Status byte: [YOvf, XOvf, YSign, XSign, 1, MBtn, RBtn, LBtn]
+                        buttons_reg <= packet_byte1[2:0];  // [Middle, Right, Left]
+
+                        // Construir movimiento X de 9 bits (signo extendido)
+                        mouse_x_reg <= {packet_byte1[4], packet_byte2};
+
+                        // Construir movimiento Y de 9 bits (signo extendido)
+                        mouse_y_reg <= {packet_byte1[5], rx_byte};
+
+                        // Marcar paquete como válido
+                        packet_valid <= 1'b1;
+                    end
+
+                    default: byte_counter <= 2'd0;
+                endcase
+            end
+
+            // Si hay error de paridad o salimos de stream mode, resetear contador
+            if (rx_parity_error || state != STATE_STREAM_MODE) begin
+                byte_counter <= 2'd0;
+            end
+        end
+    end
+
     // Salidas de debug
     assign debug_state = state;
     assign debug_data = (state == STATE_STREAM_MODE) ? rx_byte : tx_data_reg;
@@ -221,6 +304,13 @@ module ps2_mouse_init (
     assign init_done = init_complete;
     assign rx_data = rx_byte;
     assign rx_data_valid = rx_ready;
+
+    // Nuevas salidas del mouse
+    assign mouse_x = mouse_x_reg;
+    assign mouse_y = mouse_y_reg;
+    assign buttons = buttons_reg;
+    assign packet_ready = packet_valid;
+    assign rx_error = rx_parity_error;
 
 endmodule
 
@@ -376,7 +466,8 @@ module ps2_receiver (
     input  wire ps2_clk,
     input  wire ps2_data,
     output reg  [7:0] rx_data,
-    output reg  rx_ready
+    output reg  rx_ready,
+    output reg  rx_error       // Pulso cuando hay error de paridad
 );
     
     reg [10:0] rx_shift_reg;
@@ -384,27 +475,35 @@ module ps2_receiver (
     reg ps2_clk_sync, ps2_clk_prev;
     reg ps2_data_sync;
     reg receiving;
-    
+
     // Sincronización
     always @(posedge clk) begin
         ps2_clk_sync <= ps2_clk;
         ps2_clk_prev <= ps2_clk_sync;
         ps2_data_sync <= ps2_data;
     end
-    
+
     // Detección de flanco de bajada
     wire ps2_clk_negedge = ps2_clk_prev & ~ps2_clk_sync;
-    
+
+    // Verificación de paridad impar
+    wire [7:0] received_data = rx_shift_reg[8:1];
+    wire received_parity = rx_shift_reg[9];
+    wire calculated_parity = ~^received_data;  // Paridad impar de los 8 bits
+    wire parity_ok = (calculated_parity == received_parity);
+
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             rx_shift_reg <= 0;
             bit_count <= 0;
             rx_data <= 0;
             rx_ready <= 0;
+            rx_error <= 0;
             receiving <= 0;
         end else begin
             rx_ready <= 0;  // Pulso de un ciclo
-            
+            rx_error <= 0;  // Pulso de un ciclo
+
             if (!receiving) begin
                 // Detectar bit de start
                 if (ps2_clk_negedge && !ps2_data_sync) begin
@@ -418,10 +517,19 @@ module ps2_receiver (
                         rx_shift_reg <= {ps2_data_sync, rx_shift_reg[10:1]};
                         bit_count <= bit_count + 1;
                     end else begin
-                        // Frame completo
+                        // Frame completo - verificar stop bit y paridad
                         if (rx_shift_reg[10]) begin  // Verificar stop bit
-                            rx_data <= rx_shift_reg[8:1];  // Extraer datos
-                            rx_ready <= 1;
+                            if (parity_ok) begin
+                                // Paridad correcta
+                                rx_data <= rx_shift_reg[8:1];
+                                rx_ready <= 1;
+                            end else begin
+                                // Error de paridad
+                                rx_error <= 1;
+                            end
+                        end else begin
+                            // Error en stop bit
+                            rx_error <= 1;
                         end
                         receiving <= 0;
                     end

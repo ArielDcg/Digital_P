@@ -1,0 +1,68 @@
+[*]
+[*] GTKWave Analyzer v3.3.117 (w)1999-2023 BSI
+[*] Mon Dec  1 17:08:08 2025
+[*]
+[dumpfile] "/home/arielo/repos/Digital_P/Proyecto_Paint/Conexion_PS2/bench_quark.vcd"
+[dumpfile_mtime] "Mon Dec  1 17:05:50 2025"
+[dumpfile_size] 24292701
+[savefile] "/home/arielo/repos/Digital_P/Proyecto_Paint/Conexion_PS2/PS2_to_screen/Signals.gtkw"
+[timestart] 0
+[size] 1920 1011
+[pos] -461 -207
+*0.000000 1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] bench_quark.
+[sst_width] 216
+[signals_width] 174
+[sst_expanded] 1
+[sst_vpaned_height] 580
+@28
+bench_quark.ps2_clk_in
+bench_quark.ps2_data_in
+@200
+-
+@28
+[color] 1
+bench_quark.dut_rx.ps2_clk
+[color] 1
+bench_quark.dut_rx.ps2_data
+[color] 1
+bench_quark.dut_rx.ps2_clk_sync
+[color] 1
+bench_quark.dut_rx.ps2_data_sync
+[color] 1
+bench_quark.dut_rx.ps2_clk_negedge
+@200
+-
+@28
+[color] 3
+bench_quark.dut_rx.receiving
+@22
+[color] 3
+bench_quark.dut_rx.bit_count[3:0]
+[color] 3
+bench_quark.dut_rx.rx_shift_reg[10:0]
+[color] 3
+bench_quark.dut_rx.rx_data[7:0]
+@28
+[color] 3
+bench_quark.dut_rx.rx_ready
+[color] 3
+bench_quark.dut_rx.rx_error
+@200
+-
+@22
+[color] 5
+bench_quark.dut_full.state[7:0]
+@28
+[color] 5
+bench_quark.dut_full.packet_ready
+@22
+[color] 5
+bench_quark.dut_full.mouse_x[8:0]
+[color] 5
+bench_quark.dut_full.mouse_y[8:0]
+@28
+[color] 5
+bench_quark.dut_full.buttons[2:0]
+[pattern_trace] 1
+[pattern_trace] 0
