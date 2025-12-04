@@ -1,13 +1,17 @@
 /*
- * PS/2 Mouse Reader para ESP32/Arduino
+ * PS/2 Mouse Reader para Arduino Uno
  * Lee datos del mouse PS/2, verifica tramas y envía a FPGA
  * 
  * Conexiones:
- * PS/2 CLK  -> GPIO 18
- * PS/2 DATA -> GPIO 19
- * FPGA TX   -> GPIO 17 (Serial2)
+ * PS/2 CLK  -> Pin 2 (INT0 - obligatorio para interrupción)
+ * PS/2 DATA -> Pin 4
+ * FPGA TX   -> Pin 10 (SoftwareSerial TX)
+ * FPGA RX   -> Pin 11 (SoftwareSerial RX - no usado)
  * 
- * Protocolo de salida a FPGA (UART 115200):
+ * Serial (USB) a 115200 para debug
+ * SoftwareSerial (FPGA) a 57600 (más estable en Arduino Uno)
+ * 
+ * Protocolo de salida a FPGA (UART 57600):
  * Byte 0: 0xFF (inicio de trama)
  * Byte 1: Botones (bit 0=L, bit 1=R, bit 2=M)
  * Byte 2: Movimiento X (signed)
@@ -15,15 +19,21 @@
  * Byte 4: Checksum
  */
 
+#include <SoftwareSerial.h>
+
 // Pines del PS/2
-#define PS2_CLK  18
-#define PS2_DATA 19
+#define PS2_CLK  2  // Debe ser pin 2 o 3 (interrupciones externas)
+#define PS2_DATA 4  // Cualquier pin digital
+
+// SoftwareSerial para FPGA
+// RX=11, TX=10 (solo usamos TX)
+SoftwareSerial fpgaSerial(11, 10);
 
 // Variables globales
 volatile uint8_t ps2_data = 0;
 volatile uint8_t ps2_bit_count = 0;
 volatile bool ps2_frame_ready = false;
-volatile uint32_t ps2_raw_data = 0;
+volatile uint16_t ps2_raw_data = 0;  // 11 bits máximo
 
 // Buffer para el mouse (3 bytes por paquete)
 uint8_t mouse_buffer[3];
@@ -45,14 +55,15 @@ struct MouseData {
 MouseData current_mouse_data;
 
 void setup() {
-  // Inicializar comunicación serial con PC (debug)
+  // Inicializar comunicación serial con PC (debug via USB)
   Serial.begin(115200);
   
   // Inicializar comunicación serial con FPGA
-  Serial2.begin(115200, SERIAL_8N1, 16, 17); // RX=16, TX=17
+  // Nota: 57600 es más estable que 115200 en SoftwareSerial
+  fpgaSerial.begin(57600);
   
   delay(1000);
-  Serial.println("Inicializando mouse PS/2...");
+  Serial.println(F("Inicializando mouse PS/2..."));
   
   // Configurar pines PS/2
   pinMode(PS2_CLK, INPUT_PULLUP);
@@ -63,12 +74,13 @@ void setup() {
   
   // Inicializar mouse
   if (ps2_mouse_init()) {
-    Serial.println("Mouse PS/2 inicializado correctamente");
+    Serial.println(F("Mouse PS/2 inicializado correctamente"));
   } else {
-    Serial.println("Error inicializando mouse PS/2");
+    Serial.println(F("Error inicializando mouse PS/2"));
   }
   
   // Configurar interrupción en flanco de bajada del clock
+  // INT0 = pin 2, FALLING edge
   attachInterrupt(digitalPinToInterrupt(PS2_CLK), ps2_clock_isr, FALLING);
 }
 
@@ -99,7 +111,7 @@ void loop() {
         }
       }
     } else {
-      Serial.println("Error: Frame PS/2 inválido");
+      Serial.println(F("Error: Frame PS/2 invalido"));
       buffer_index = 0; // Resetear buffer
     }
   }
@@ -108,14 +120,16 @@ void loop() {
 }
 
 // Interrupción del clock PS/2
-void IRAM_ATTR ps2_clock_isr() {
-  static uint32_t temp_data = 0;
+void ps2_clock_isr() {
+  static uint16_t temp_data = 0;
   
   // Leer bit de datos
   bool bit_value = digitalRead(PS2_DATA);
   
   // Almacenar bit
-  temp_data |= (bit_value ? 1 : 0) << ps2_bit_count;
+  if (bit_value) {
+    temp_data |= (1 << ps2_bit_count);
+  }
   ps2_bit_count++;
   
   // Frame completo: 1 start + 8 data + 1 parity + 1 stop = 11 bits
@@ -128,16 +142,16 @@ void IRAM_ATTR ps2_clock_isr() {
 }
 
 // Verificar frame PS/2 (start bit, paridad, stop bit)
-bool verify_ps2_frame(uint32_t frame) {
+bool verify_ps2_frame(uint16_t frame) {
   // Start bit debe ser 0
   if (frame & 0x01) {
-    Serial.println("Error: Start bit incorrecto");
+    Serial.println(F("Error: Start bit incorrecto"));
     return false;
   }
   
   // Stop bit debe ser 1
   if (!(frame & 0x400)) {
-    Serial.println("Error: Stop bit incorrecto");
+    Serial.println(F("Error: Stop bit incorrecto"));
     return false;
   }
   
@@ -147,13 +161,13 @@ bool verify_ps2_frame(uint32_t frame) {
   
   // Contar bits en 1
   uint8_t count = 0;
-  for (int i = 0; i < 8; i++) {
+  for (uint8_t i = 0; i < 8; i++) {
     if (data & (1 << i)) count++;
   }
   
   // Paridad impar: total de bits (data + parity) debe ser impar
   if (((count + parity_bit) & 0x01) == 0) {
-    Serial.println("Error: Paridad incorrecta");
+    Serial.println(F("Error: Paridad incorrecta"));
     return false;
   }
   
@@ -167,7 +181,7 @@ bool parse_mouse_packet(uint8_t* packet) {
   
   // Verificar bit 3 (siempre debe ser 1 en el primer byte)
   if (!(byte0 & 0x08)) {
-    Serial.println("Error: Byte 0 inválido (bit 3 no está en 1)");
+    Serial.println(F("Error: Byte 0 invalido"));
     return false;
   }
   
@@ -200,15 +214,15 @@ bool parse_mouse_packet(uint8_t* packet) {
 
 // Imprimir datos del mouse (debug)
 void print_mouse_data() {
-  Serial.print("X: ");
+  Serial.print(F("X: "));
   Serial.print(current_mouse_data.x_movement);
-  Serial.print("\tY: ");
+  Serial.print(F("\tY: "));
   Serial.print(current_mouse_data.y_movement);
-  Serial.print("\tL: ");
+  Serial.print(F("\tL: "));
   Serial.print(current_mouse_data.left_button);
-  Serial.print("\tR: ");
+  Serial.print(F("\tR: "));
   Serial.print(current_mouse_data.right_button);
-  Serial.print("\tM: ");
+  Serial.print(F("\tM: "));
   Serial.println(current_mouse_data.middle_button);
 }
 
@@ -235,7 +249,7 @@ void send_to_fpga() {
   fpga_packet[4] = fpga_packet[1] ^ fpga_packet[2] ^ fpga_packet[3];
   
   // Enviar a FPGA
-  Serial2.write(fpga_packet, 5);
+  fpgaSerial.write(fpga_packet, 5);
 }
 
 // Inicialización del mouse PS/2
@@ -250,7 +264,7 @@ bool ps2_mouse_init() {
   // Leer ACK (0xFA)
   uint8_t response = ps2_read();
   if (response != 0xFA) {
-    Serial.print("No ACK después de reset: 0x");
+    Serial.print(F("No ACK despues de reset: 0x"));
     Serial.println(response, HEX);
     return false;
   }
@@ -258,14 +272,14 @@ bool ps2_mouse_init() {
   // Leer BAT result (0xAA)
   response = ps2_read();
   if (response != 0xAA) {
-    Serial.print("BAT fallido: 0x");
+    Serial.print(F("BAT fallido: 0x"));
     Serial.println(response, HEX);
     return false;
   }
   
   // Leer Device ID (0x00 para mouse estándar)
   response = ps2_read();
-  Serial.print("Device ID: 0x");
+  Serial.print(F("Device ID: 0x"));
   Serial.println(response, HEX);
   
   // Habilitar reporte de datos (0xF4)
@@ -276,7 +290,7 @@ bool ps2_mouse_init() {
   // Leer ACK
   response = ps2_read();
   if (response != 0xFA) {
-    Serial.print("No ACK después de Enable: 0x");
+    Serial.print(F("No ACK despues de Enable: 0x"));
     Serial.println(response, HEX);
     return false;
   }
@@ -301,12 +315,12 @@ bool ps2_write(uint8_t data) {
   
   // Calcular paridad
   uint8_t parity = 1;
-  for (int i = 0; i < 8; i++) {
+  for (uint8_t i = 0; i < 8; i++) {
     if (data & (1 << i)) parity ^= 1;
   }
   
   // Enviar 8 bits de datos
-  for (int i = 0; i < 8; i++) {
+  for (uint8_t i = 0; i < 8; i++) {
     while (digitalRead(PS2_CLK) == LOW); // Esperar clock alto
     while (digitalRead(PS2_CLK) == HIGH); // Esperar clock bajo
     
