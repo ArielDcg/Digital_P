@@ -1,0 +1,242 @@
+┌─────────────────────────────────────────────────────────────────────┐
+│                    SISTEMA MOUSE PS/2 → FPGA                         │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌──────────────┐           ┌──────────────┐           ┌──────────────┐
+│              │           │              │           │              │
+│  Mouse PS/2  │  ───────→ │    ESP32     │  ───────→ │     FPGA     │
+│              │   PS/2    │   Arduino    │   UART    │ Tang Primer  │
+│              │ Protocol  │              │ 115200    │     25K      │
+└──────────────┘           └──────────────┘           └──────────────┘
+       ↓                          ↓                          ↓
+  4 pines:               3 funciones:              3 módulos:
+  • CLK                  • Leer PS/2               • UART RX
+  • DATA                 • Verificar               • Parser
+  • VCC (3.3V)           • Enviar                  • Integrador
+  • GND                  
+
+
+═══════════════════════════════════════════════════════════════════════
+                            CONEXIONES FÍSICAS
+═══════════════════════════════════════════════════════════════════════
+
+Mouse PS/2                    ESP32                         FPGA
+──────────                    ─────                         ────
+
+CLK (pin 5) ─────────────→ GPIO 18
+                              ↓
+                           (Interrupción
+                            FALLING)
+
+DATA (pin 1) ────────────→ GPIO 19
+                              ↓
+                          (Lectura en
+                           cada CLK)
+
+VCC (pin 4) ────────────→ 3.3V
+
+GND (pin 3) ────────────→ GND ←──────────────────────→ GND
+                                                         ↑
+                          GPIO 17 (TX) ────────────→ uart_rx
+                          (Serial2)                  (pin H11)
+
+
+═══════════════════════════════════════════════════════════════════════
+                          FLUJO DE DATOS
+═══════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ 1. MOUSE PS/2 → ESP32                                               │
+└─────────────────────────────────────────────────────────────────────┘
+
+Frame PS/2 (11 bits):
+  
+  ┌──┬───┬───┬───┬───┬───┬───┬───┬───┬──┬──┐
+  │St│D0 │D1 │D2 │D3 │D4 │D5 │D6 │D7 │Pr│Sp│
+  └──┴───┴───┴───┴───┴───┴───┴───┴───┴──┴──┘
+   0  ←────── 8 bits data ──────→  P  1
+
+  St = Start bit (0)
+  Pr = Parity bit (odd)
+  Sp = Stop bit (1)
+
+Paquete Mouse (3 bytes):
+  
+  Byte 0: [Y_ovf][X_ovf][Y_sign][X_sign][1][Middle][Right][Left]
+  Byte 1: X Movement (0-255)
+  Byte 2: Y Movement (0-255)
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ 2. ESP32 → FPGA (UART)                                              │
+└─────────────────────────────────────────────────────────────────────┘
+
+Protocolo Personalizado (5 bytes @ 115200 baud):
+
+  ┌────┬─────────┬────────┬────────┬──────────┐
+  │0xFF│ Buttons │ Move X │ Move Y │ Checksum │
+  └────┴─────────┴────────┴────────┴──────────┘
+    ^      ^         ^        ^         ^
+    │      │         │        │         └─ XOR(B1^B2^B3)
+    │      │         │        └─ Signed 8-bit (-128 a +127)
+    │      │         └─ Signed 8-bit (-128 a +127)
+    │      └─ [0][0][0][0][0][M][R][L]
+    └─ Marcador de inicio
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ 3. PROCESAMIENTO EN FPGA                                            │
+└─────────────────────────────────────────────────────────────────────┘
+
+uart_rx ──→ [UART RX] ──→ [Parser] ──→ [Integrador] ──→ Salidas
+              234 clks      FSM          Acumulador
+              @ 27MHz       5 estados    Saturación
+
+Salidas disponibles:
+  • mouse_dx, mouse_dy    : Movimiento delta (signed 8-bit)
+  • mouse_left/right/mid  : Estado botones (1 bit cada uno)
+  • pos_x, pos_y          : Posición absoluta (16-bit)
+  • data_valid            : Pulso cuando hay datos nuevos
+  • error_flag            : Error de checksum
+
+
+═══════════════════════════════════════════════════════════════════════
+                      VERIFICACIONES IMPLEMENTADAS
+═══════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ ESP32 (ps2_mouse_to_fpga.ino)                                       │
+└─────────────────────────────────────────────────────────────────────┘
+
+✓ Frame PS/2:
+  • Start bit == 0
+  • Stop bit == 1
+  • Paridad impar correcta
+
+✓ Paquete Mouse:
+  • Bit 3 del byte 0 == 1
+  • Sincronización de 3 bytes
+
+✓ Inicialización:
+  • ACK después de RESET (0xFA)
+  • BAT completo (0xAA)
+  • Device ID (0x00)
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ FPGA (ps2_mouse_receiver.v)                                         │
+└─────────────────────────────────────────────────────────────────────┘
+
+✓ UART:
+  • Start bit detection
+  • Sampling en centro del bit
+  • Stop bit verification
+
+✓ Protocolo:
+  • Header byte == 0xFF
+  • Checksum == XOR(B1^B2^B3)
+
+✓ Integrador:
+  • Saturación en límites
+  • Manejo de signo correcto
+
+
+═══════════════════════════════════════════════════════════════════════
+                         EJEMPLO DE TIMING
+═══════════════════════════════════════════════════════════════════════
+
+PS/2 Clock: ~15 kHz (periodo ≈ 67 μs)
+            
+            ┌───┐   ┌───┐   ┌───┐
+  CLK ──────┘   └───┘   └───┘   └──
+            ↓       ↓       ↓
+  DATA  ────X───────X───────X──────
+        (leer)  (leer)  (leer)
+        
+        Interrupción cada falling edge
+
+UART: 115200 baud (periodo ≈ 8.68 μs/bit)
+      @ 27 MHz = 234 clocks por bit
+
+      ┌────┬────┬────┬────┬────┐
+  TX ─┤Start│ B0 │ B1 │... │Stop├─
+      └────┴────┴────┴────┴────┘
+       234  234  234  234  234
+      clocks por bit
+
+
+═══════════════════════════════════════════════════════════════════════
+                        ARQUITECTURA INTERNA
+═══════════════════════════════════════════════════════════════════════
+
+ESP32:
+┌─────────────────────────────────────────────────────────────────────┐
+│                                                                       │
+│  ┌────────────┐    ┌──────────┐    ┌────────────┐                  │
+│  │ PS/2 Clock │───→│   ISR    │───→│  Buffer    │                  │
+│  │ Interrupt  │    │          │    │  3 bytes   │                  │
+│  └────────────┘    └──────────┘    └────────────┘                  │
+│                                           ↓                          │
+│                                     ┌───────────┐                   │
+│                                     │  Parser   │                   │
+│                                     │  & Verify │                   │
+│                                     └───────────┘                   │
+│                                           ↓                          │
+│                                     ┌───────────┐                   │
+│                                     │  Format   │                   │
+│                                     │  & Send   │                   │
+│                                     └───────────┘                   │
+│                                           ↓                          │
+│                                      Serial2 TX                      │
+└─────────────────────────────────────────────────────────────────────┘
+
+FPGA:
+┌─────────────────────────────────────────────────────────────────────┐
+│                                                                       │
+│  uart_rx ──→ ┌──────────┐ ──→ ┌──────────┐ ──→ Salidas            │
+│              │  UART RX │     │  Parser  │                          │
+│              │  Module  │     │  FSM     │                          │
+│              └──────────┘     └──────────┘                          │
+│                   ↓                 ↓                                │
+│              rx_byte           [buttons]                            │
+│              rx_done           [delta_x]                            │
+│                                [delta_y]                            │
+│                                [checksum]                           │
+│                                     ↓                                │
+│                               ┌───────────┐                         │
+│                               │Integrator │                         │
+│                               │  (opt)    │                         │
+│                               └───────────┘                         │
+│                                     ↓                                │
+│                               [pos_x, pos_y]                        │
+└─────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════
+                      FRECUENCIAS Y TIMINGS
+═══════════════════════════════════════════════════════════════════════
+
+PS/2 Mouse:
+  • Clock frequency: 10-16.7 kHz (típico 15 kHz)
+  • Data rate: ~1500 bytes/sec máximo
+  • Packet rate: ~500 packets/sec (120 Hz típico)
+
+ESP32:
+  • CPU: 240 MHz (suficiente para ISR)
+  • UART: 115200 baud
+  • Data rate: ~23 kB/s (suficiente)
+  • Latencia: <1 ms típica
+
+FPGA:
+  • Clock: 27 MHz
+  • UART sampling: 234 clocks/bit
+  • Latencia: <100 μs
+  • Throughput: 115200 baud continuous
+
+
+═══════════════════════════════════════════════════════════════════════
+
+Notas:
+  • Todas las verificaciones se implementan en ambos lados
+  • Sistema tolerante a errores con flags y reintentos
+  • Latencia total end-to-end: ~2-3 ms típico
+  • Compatible con cualquier mouse PS/2 estándar
+
+═══════════════════════════════════════════════════════════════════════

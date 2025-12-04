@@ -36,7 +36,7 @@ module top_ps2_test (
     // Instancia del módulo PS/2
     ps2_mouse_init mouse_ctrl (
         .clk(clk),
-        .rst_n(rst_n),
+        .rst_n(1'b1),
         .ps2_clk(ps2_clk),
         .ps2_data(ps2_data),
         .debug_state(debug_state),

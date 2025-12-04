@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module name="top_ps2_test" T_Register="142(0)" T_Lut="236(0)">
+ <SubModule name="mouse_ctrl" Register="75" Lut="118" T_Register="142(75)" T_Lut="236(118)">
+  <SubModule name="ps2_tx" Register="41" Lut="92" T_Register="41(41)" T_Lut="92(92)"/>
+  <SubModule name="ps2_rx" Register="26" Lut="26" T_Register="26(26)" T_Lut="26(26)"/>
+ </SubModule>
+</Module>

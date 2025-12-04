@@ -1,5 +1,5 @@
 # Script TCL generado automáticamente desde Makefile
-# Fecha: Thu Nov 27 10:15:55 PM -05 2025
+# Fecha: Tue Dec  2 10:24:34 AM -05 2025
 
 # Configurar dispositivo
 set_device -name GW5A-25A GW5A-LV25MG121NC1/I0
@@ -14,6 +14,8 @@ add_file -type verilog memory_V2.v
 add_file -type verilog comp.v
 add_file -type verilog lsr_led.v
 add_file -type verilog mux_led.v
+add_file -type verilog Mouse_to_screen.v
+add_file -type verilog mult.v
 
 # Configurar opciones del proyecto
 set_option -use_mspi_as_gpio 1
