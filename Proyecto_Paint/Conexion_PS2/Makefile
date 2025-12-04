@@ -3,8 +3,8 @@
 EFINITY_HOME  = /home/carlos/Embedded/efinity/2023.2/
 EFXPT_HOME    = $(EFINITY_HOME)/pt
 
-TARGET=top_ps2_test
-TOP=top_ps2_test
+TARGET=ps2_paint_top
+TOP=ps2_paint_top
 
 ECP5_SIM_CELLS  = $(shell yosys-config --datdir/ecp5/cells_sim.v)
 ECP5_SIM_CELLS += $(shell yosys-config --datdir/ecp5/cells_bb.v)
@@ -29,7 +29,19 @@ endif
 
 TCL_SCRIPT = auto_generated.tcl
 
-COMM_OBJS+=  ps2_mouse_init.v top_ps2_test.v
+LED_DIR = PS2_to_screen/Mouse_to_screen/Led_panel_12bpp
+
+COMM_OBJS += ps2_paint_top.v
+COMM_OBJS += led_panel_4k_external.v
+COMM_OBJS += Arduino/ps2_mouse_receiver.v
+COMM_OBJS += $(LED_DIR)/Mouse_to_screen.v
+COMM_OBJS += $(LED_DIR)/mult.v
+COMM_OBJS += $(LED_DIR)/memory_V2.v
+COMM_OBJS += $(LED_DIR)/ctrl_lp4k.v
+COMM_OBJS += $(LED_DIR)/count.v
+COMM_OBJS += $(LED_DIR)/lsr_led.v
+COMM_OBJS += $(LED_DIR)/comp.v
+COMM_OBJS += $(LED_DIR)/mux_led.v
 
 OBJS += $(COMM_OBJS)
 

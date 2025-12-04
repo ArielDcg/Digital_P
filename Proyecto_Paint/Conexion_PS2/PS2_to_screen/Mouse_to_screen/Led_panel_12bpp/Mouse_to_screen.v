@@ -1,12 +1,13 @@
 module Mouse_to_screen#(
-    parameter X_MAX = 63,         
-    parameter Y_MAX = 63,         
-    parameter IMG_WIDTH = 16'd64, 
-    parameter IMG_DIV = 32,       
-    parameter PIXEL_COLOR = 12'h004 
+    parameter X_MAX = 63,
+    parameter Y_MAX = 63,
+    parameter IMG_WIDTH = 16'd64,
+    parameter IMG_DIV = 32,
+    parameter PIXEL_COLOR = 12'h004
 )(
     input              clk,
-    input              reset,      
+    input              reset,
+    input              packet_ready,
     input [8:0]        PS2_Xdata,
     input [8:0]        PS2_Ydata,
     input  [11:0]      b_rdata0,
@@ -30,19 +31,19 @@ reg       sel_mem_actual;
 
 //Calculo de valor final de X,Y
 always @(*) begin
-    if (PS2_Xdata > X_MAX)
+    if ($signed(PS2_Xdata) > $signed(X_MAX))
         x_fin = X_MAX;
-    else if (PS2_Xdata < 0)
+    else if ($signed(PS2_Xdata) < 0)
         x_fin = 0;
     else
-        x_fin = PS2_Xdata;
+        x_fin = PS2_Xdata[6:0];
 
-    if (PS2_Ydata > Y_MAX)
+    if ($signed(PS2_Ydata) > $signed(Y_MAX))
         y_fin = Y_MAX;
-    else if (PS2_Ydata < 0)
+    else if ($signed(PS2_Ydata) < 0)
         y_fin = 0;
     else
-        y_fin = PS2_Ydata;
+        y_fin = PS2_Ydata[6:0];
 
     sel_mem_actual = (y_fin > IMG_DIV);
 
@@ -55,9 +56,9 @@ end
 reg init_mult;
 wire done_mult;
 wire [31:0] result_mult;
-wire [11:0] y_mult_result = result_mult[11:0]; 
-wire [11:0] dir_actual = y_mult_result + x_fin; 
-wire movimiento_detectado = (dir_actual != dir_anterior) && (estado == START);
+wire [11:0] y_mult_result = result_mult[11:0];
+wire [11:0] dir_actual = y_mult_result + x_fin;
+wire movimiento_detectado = packet_ready && (estado == START);
 
 //Aplicaciòn del modulo de multiplicaciòn
 mult u_multiplier (
