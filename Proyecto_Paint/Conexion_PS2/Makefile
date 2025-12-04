@@ -263,7 +263,7 @@ ifeq ($(GOWIN_BOARD),nano_20k)
 	@echo "add_file sipeed_tang_nano_20k.cst" >> $@
 	@echo "add_file sipeed_tang_nano_20k.sdc" >> $@
 else ifeq ($(GOWIN_BOARD),primer_25k)
-	@echo "add_file QT" >> $@
+	@echo "add_file sipeed_tang_primer_25k.cst" >> $@
 	@echo "add_file sipeed_tang_primer_25k.sdc" >> $@
 else
     $(error GOWIN_BOARD=$(GOWIN_BOARD) no válido. Usa: nano_20k o primer_25k)
