@@ -1,0 +1,64 @@
+// ps2_mouse_constraints.cst
+// Restricciones para Tang Primer 25K (GW5A-LV25MG121NES)
+// Pines válidos para package MG121
+
+// Clock del sistema (27 MHz)
+IO_LOC "clk" H11;
+IO_PORT "clk" PULL_MODE=UP;
+
+// Reset button (botón S1)
+IO_LOC "rst_n" T10;
+IO_PORT "rst_n" PULL_MODE=UP;
+
+// ============================================
+// Conexiones PS/2 Mouse
+// ============================================
+// IMPORTANTE: La FPGA tiene pull-ups internas, NO necesitas resistencias externas
+// Las pull-ups se configuran con PULL_MODE=UP
+
+IO_LOC "ps2_clk" B12;   // PMOD - Pin para PS/2 Clock
+IO_PORT "ps2_clk" PULL_MODE=UP DRIVE=8;
+
+IO_LOC "ps2_data" C11;  // PMOD - Pin para PS/2 Data
+IO_PORT "ps2_data" PULL_MODE=UP DRIVE=8;
+
+// ============================================
+// Señales de debug para ANALIZADOR LÓGICO
+// ============================================
+// Conectar estos 8 pines a los canales del analizador lógico
+// para ver el estado de la FSM
+
+IO_LOC "debug_state[0]" A11;  // Canal 0 - bit 0 del estado
+IO_LOC "debug_state[1]" A10;  // Canal 1 - bit 1 del estado
+IO_LOC "debug_state[2]" B10;  // Canal 2 - bit 2 del estado
+IO_LOC "debug_state[3]" C10;  // Canal 3 - bit 3 del estado
+IO_LOC "debug_state[4]" E11;  // Canal 4 - bit 4 del estado
+IO_LOC "debug_state[5]" D11;  // Canal 5 - bit 5 del estado
+IO_LOC "debug_state[6]" C12;  // Canal 6 - bit 6 del estado
+IO_LOC "debug_state[7]" D12;  // Canal 7 - bit 7 del estado
+
+// ============================================
+// Debug pins adicionales (datos recibidos del mouse)
+// ============================================
+// Opcional: conectar al analizador lógico para ver los datos RX
+
+IO_LOC "debug_pins[0]" E12;
+IO_LOC "debug_pins[1]" F12;
+IO_LOC "debug_pins[2]" F13;
+IO_LOC "debug_pins[3]" E13;
+IO_LOC "debug_pins[4]" B14;
+IO_LOC "debug_pins[5]" C14;
+IO_LOC "debug_pins[6]" D14;
+IO_LOC "debug_pins[7]" E14;
+
+// ============================================
+// LEDs para indicadores visuales
+// ============================================
+IO_LOC "led_init_done" L14;    // LED 1 - Se enciende cuando la inicialización termina
+IO_LOC "led_activity" L13;     // LED 2 - Parpadea cuando llegan datos del mouse
+IO_LOC "led_error" K14;        // LED 3 - Error (no usado por ahora)
+
+// ============================================
+// UART TX (opcional para debug futuro)
+// ============================================
+IO_LOC "uart_tx" M11;          // Pin UART TX

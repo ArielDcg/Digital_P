@@ -1,0 +1,144 @@
+//================================================================================
+// Constraint File (.cst) para Tang Primer 25K
+// Proyecto: PS/2 Mouse to UART
+//
+// IMPORTANTE: Ajustar los números de pin según el hardware específico
+//             Este archivo es una plantilla de ejemplo
+//================================================================================
+
+//================================================================================
+// Reloj del sistema (27 MHz en Tang Primer 25K)
+//================================================================================
+IO_LOC "clk" 4;
+IO_PORT "clk" PULL_MODE=UP;
+
+//================================================================================
+// Reset (Botón)
+//================================================================================
+IO_LOC "rst_n" 88;
+IO_PORT "rst_n" PULL_MODE=UP;
+
+//================================================================================
+// Interfaz PS/2 Mouse
+// NOTA: Requiere resistencias pull-up externas de 10kΩ a 5V
+//================================================================================
+IO_LOC "ps2_clk" 31;
+IO_PORT "ps2_clk" PULL_MODE=UP IO_TYPE=LVCMOS33 DRIVE=8;
+
+IO_LOC "ps2_data" 32;
+IO_PORT "ps2_data" PULL_MODE=UP IO_TYPE=LVCMOS33 DRIVE=8;
+
+//================================================================================
+// UART (USB-Serial)
+//================================================================================
+// TX: FPGA transmite hacia PC
+IO_LOC "uart_txd" 17;
+IO_PORT "uart_txd" PULL_MODE=UP IO_TYPE=LVCMOS33 SLEW=FAST;
+
+// RX: FPGA recibe desde PC (no usado actualmente, pero conectado)
+IO_LOC "uart_rxd" 18;
+IO_PORT "uart_rxd" PULL_MODE=UP IO_TYPE=LVCMOS33;
+
+//================================================================================
+// LEDs de depuración (opcional)
+//================================================================================
+// LED[0]: Inicialización PS/2 completa
+IO_LOC "led[0]" 10;
+IO_PORT "led[0]" PULL_MODE=DOWN IO_TYPE=LVCMOS33 DRIVE=8;
+
+// LED[1]: Paquete PS/2 recibido
+IO_LOC "led[1]" 11;
+IO_PORT "led[1]" PULL_MODE=DOWN IO_TYPE=LVCMOS33 DRIVE=8;
+
+// LED[2]: UART transmitiendo
+IO_LOC "led[2]" 13;
+IO_PORT "led[2]" PULL_MODE=DOWN IO_TYPE=LVCMOS33 DRIVE=8;
+
+// LED[3]: Error de paridad PS/2
+IO_LOC "led[3]" 14;
+IO_PORT "led[3]" PULL_MODE=DOWN IO_TYPE=LVCMOS33 DRIVE=8;
+
+//================================================================================
+// Configuración de voltaje de I/O (IMPORTANTE)
+//================================================================================
+// Bank 0: 3.3V (LEDs, UART)
+// Bank 1: 3.3V (PS/2 - usar level shifter si mouse es 5V)
+// Bank 2: 3.3V
+// Bank 3: 3.3V
+
+//================================================================================
+// Timing Constraints
+//================================================================================
+// Frecuencia del reloj: 27 MHz
+// Período: 37.037 ns
+
+//================================================================================
+// NOTAS IMPORTANTES
+//================================================================================
+// 1. PS/2 Mouse:
+//    - El mouse PS/2 típicamente opera a 5V
+//    - La FPGA opera a 3.3V
+//    - OPCIONES:
+//      a) Usar level shifter bidireccional (recomendado)
+//      b) Usar resistencias pull-up a 3.3V (funciona con muchos mice)
+//      c) Verificar que el mouse tolere 3.3V
+//
+// 2. Resistencias pull-up PS/2:
+//    - ps2_clk:  10kΩ a VCC (3.3V o 5V según opción)
+//    - ps2_data: 10kΩ a VCC (3.3V o 5V según opción)
+//
+// 3. UART:
+//    - Conectar a adaptador USB-Serial (FT232, CH340, etc.)
+//    - Configurar a 115200 baud, 8N1
+//    - Conectar GND común entre FPGA y adaptador
+//
+// 4. LEDs:
+//    - Conectar a través de resistencias limitadoras (330Ω - 1kΩ)
+//    - O usar LEDs internos de la placa si están disponibles
+//
+//================================================================================
+
+//================================================================================
+// Esquema de conexión PS/2 con level shifter (recomendado):
+//================================================================================
+//
+//  Mouse PS/2 (5V)          Level Shifter          FPGA (3.3V)
+//  ┌──────────┐            ┌──────────┐           ┌──────────┐
+//  │          │            │          │           │          │
+//  │  CLK  ───┼────────────┤ HV ─ LV  ├───────────┤ ps2_clk  │
+//  │          │   10kΩ     │          │   10kΩ    │          │
+//  │          │    │       │          │    │      │          │
+//  │          │   5V       │  5V  3.3V│   3.3V    │          │
+//  │          │            │          │           │          │
+//  │  DATA ───┼────────────┤ HV ─ LV  ├───────────┤ ps2_data │
+//  │          │   10kΩ     │          │   10kΩ    │          │
+//  │          │    │       │          │    │      │          │
+//  │          │   5V       │          │   3.3V    │          │
+//  │          │            │          │           │          │
+//  │  VCC  ───┼─── 5V      │          │           │          │
+//  │  GND  ───┼─── GND ────┴──────────┴───────────┤  GND     │
+//  │          │                                    │          │
+//  └──────────┘                                    └──────────┘
+//
+//================================================================================
+
+//================================================================================
+// Pines alternativos para Tang Primer 25K (ejemplo)
+//================================================================================
+// Si los pines por defecto no funcionan, intentar estos:
+//
+// PS/2:
+//   ps2_clk:  25, 26, 27, 28, 29, 30, 31, 32
+//   ps2_data: 25, 26, 27, 28, 29, 30, 31, 32
+//
+// UART:
+//   uart_txd: 17, 18, 19, 20
+//   uart_rxd: 17, 18, 19, 20
+//
+// LEDs (si usa LEDs de la placa):
+//   led[0]: 10, 11, 13, 14, 15, 16
+//   led[1]: 10, 11, 13, 14, 15, 16
+//   led[2]: 10, 11, 13, 14, 15, 16
+//   led[3]: 10, 11, 13, 14, 15, 16
+//
+//================================================================================
