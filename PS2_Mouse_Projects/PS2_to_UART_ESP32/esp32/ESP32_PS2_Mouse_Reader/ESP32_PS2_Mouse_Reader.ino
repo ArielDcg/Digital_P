@@ -8,10 +8,13 @@
  *   Mouse PS/2 → ESP32 (este programa) → UART → FPGA
  *
  * Conexiones PS/2:
- *   Mouse CLK  → ESP32 GPIO 34 (input)
- *   Mouse DATA → ESP32 GPIO 35 (input)
- *   Mouse VCC  → 5V (con level shifter si es necesario)
+ *   Mouse CLK  → ESP32 GPIO 36 (VP) + pull-up 10kΩ a 3.3V/5V
+ *   Mouse DATA → ESP32 GPIO 39 (VN) + pull-up 10kΩ a 3.3V/5V
+ *   Mouse VCC  → 5V
  *   Mouse GND  → GND
+ *
+ * IMPORTANTE: GPIO 36 y 39 NO tienen pull-ups internos
+ *             Usar resistencias pull-up EXTERNAS de 10kΩ
  *
  * Conexiones UART:
  *   ESP32 TX (GPIO 17) → FPGA RX
@@ -26,8 +29,9 @@
 //============================================================================
 
 // Pines PS/2 (solo lectura desde ESP32)
-#define PS2_CLK_PIN  34  // GPIO34 - Reloj PS/2 (input only)
-#define PS2_DATA_PIN 35  // GPIO35 - Datos PS/2 (input only)
+// IMPORTANTE: GPIO 36 y 39 son input-only, requieren pull-ups EXTERNOS (10kΩ)
+#define PS2_CLK_PIN  36  // GPIO36 (VP) - Reloj PS/2 (input only, sin pull-up interno)
+#define PS2_DATA_PIN 39  // GPIO39 (VN) - Datos PS/2 (input only, sin pull-up interno)
 
 // UART para comunicación con FPGA
 #define UART_TX 17  // TX hacia FPGA
@@ -172,14 +176,17 @@ void IRAM_ATTR ps2_clk_interrupt() {
 //============================================================================
 
 void ps2_init() {
-  // Configurar pines como entradas con pull-up
-  pinMode(PS2_CLK_PIN, INPUT_PULLUP);
-  pinMode(PS2_DATA_PIN, INPUT_PULLUP);
+  // Configurar pines como entradas
+  // NOTA: GPIO 36 y 39 NO tienen pull-ups internos
+  // DEBES usar resistencias pull-up EXTERNAS de 10kΩ a 3.3V o 5V
+  pinMode(PS2_CLK_PIN, INPUT);
+  pinMode(PS2_DATA_PIN, INPUT);
 
   // Configurar interrupción en flanco de bajada del reloj
   attachInterrupt(digitalPinToInterrupt(PS2_CLK_PIN), ps2_clk_interrupt, FALLING);
 
-  Serial.println("PS/2 inicializado");
+  Serial.println("✓ PS/2 inicializado");
+  Serial.println("⚠ IMPORTANTE: GPIO 36 y 39 requieren pull-ups EXTERNOS (10kΩ)");
 }
 
 //============================================================================
@@ -362,10 +369,12 @@ void setup() {
   Serial.println("║  Arquitectura:                                       ║");
   Serial.println("║  Mouse PS/2 → ESP32 → UART → FPGA                   ║");
   Serial.println("╠═══════════════════════════════════════════════════════╣");
-  Serial.printf("║  PS/2 CLK:  GPIO%d                                   ║\n", PS2_CLK_PIN);
-  Serial.printf("║  PS/2 DATA: GPIO%d                                   ║\n", PS2_DATA_PIN);
-  Serial.printf("║  UART TX:   GPIO%d → FPGA                           ║\n", UART_TX);
+  Serial.printf("║  PS/2 CLK:  GPIO%d (VP)  + pull-up 10kΩ            ║\n", PS2_CLK_PIN);
+  Serial.printf("║  PS/2 DATA: GPIO%d (VN)  + pull-up 10kΩ            ║\n", PS2_DATA_PIN);
+  Serial.printf("║  UART TX:   GPIO%d → FPGA RX                       ║\n", UART_TX);
   Serial.printf("║  Baud rate: %lu                                 ║\n", (unsigned long)BAUD_RATE);
+  Serial.println("╠═══════════════════════════════════════════════════════╣");
+  Serial.println("║  ⚠ GPIO 36/39 requieren pull-ups EXTERNOS           ║");
   Serial.println("╚═══════════════════════════════════════════════════════╝");
   Serial.println();
 

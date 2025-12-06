@@ -1,0 +1,50 @@
+/*
+ * CONFIGURACIÓN DE HARDWARE - PS/2 Mouse con ESP32
+ *
+ * PINES ESP32 USADOS:
+ * ===================
+ *
+ * GPIO 36 (VP)  - PS/2 CLK  (input-only, NO pull-up interno)
+ * GPIO 39 (VN)  - PS/2 DATA (input-only, NO pull-up interno)
+ * GPIO 17       - UART TX hacia FPGA
+ *
+ * IMPORTANTE - PULL-UPS EXTERNOS OBLIGATORIOS:
+ * ============================================
+ *
+ * GPIO 36 y 39 NO tienen pull-ups internos, por lo tanto
+ * se DEBEN usar resistencias pull-up externas:
+ *
+ * Esquema de conexión:
+ *
+ *                    +3.3V o +5V
+ *                       │
+ *                      ┌┴┐
+ *                      │ │  10kΩ
+ *                      │ │
+ *                      └┬┘
+ *    Mouse CLK ─────────┼────── GPIO 36 (VP)
+ *                       │
+ *                      ┌┴┐
+ *                      │ │  10kΩ
+ *                      │ │
+ *                      └┬┘
+ *    Mouse DATA ────────┼────── GPIO 39 (VN)
+ *                       │
+ *                      +3.3V o +5V
+ *
+ * Mouse VCC ──────────── +5V
+ * Mouse GND ──────────── GND
+ *
+ * ALTERNATIVA - Si prefieres usar GPIOs con pull-ups internos:
+ * ===========================================================
+ *
+ * Puedes usar GPIO 32 y 33 que SÍ tienen pull-ups:
+ * #define PS2_CLK_PIN  32
+ * #define PS2_DATA_PIN 33
+ *
+ * Y en ps2_init() usar:
+ * pinMode(PS2_CLK_PIN, INPUT_PULLUP);
+ * pinMode(PS2_DATA_PIN, INPUT_PULLUP);
+ *
+ * Pero GPIO 36/39 son preferibles porque son input-only (más seguros).
+ */
