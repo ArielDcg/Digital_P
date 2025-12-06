@@ -1,0 +1,158 @@
+# Makefile para PS/2 Mouse a UART
+# Proyecto: Digital_P - PS/2 Mouse UART Interface
+
+# Configuración
+PROJECT = ps2_mouse_to_uart
+TB = $(PROJECT)_tb
+VCD = $(PROJECT)_tb.vcd
+VVP = $(PROJECT)_tb.vvp
+
+# Rutas
+PS2_PATH = Proyecto_Paint/Conexion_PS2
+UART_PATH = Calculadora/modulos/uart
+
+# Archivos fuente
+SOURCES = $(PROJECT).v \
+          $(PS2_PATH)/ps2_mouse_init.v \
+          $(UART_PATH)/uart.v
+
+# Archivos del testbench
+TB_SOURCES = $(TB).v $(SOURCES)
+
+# Herramientas
+IVERILOG = iverilog
+VVP_CMD = vvp
+GTKWAVE = gtkwave
+PYTHON = python3
+
+# Colores para output
+RED = \033[0;31m
+GREEN = \033[0;32m
+YELLOW = \033[1;33m
+BLUE = \033[0;34m
+NC = \033[0m # No Color
+
+.PHONY: all clean sim wave help test install-deps
+
+# Target por defecto
+all: sim
+
+# Compilar el testbench
+compile: $(TB_SOURCES)
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
+	@echo "$(BLUE)  Compilando testbench...$(NC)"
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
+	@$(IVERILOG) -o $(VVP) $(TB_SOURCES)
+	@echo "$(GREEN)✓ Compilación exitosa$(NC)"
+	@echo ""
+
+# Ejecutar simulación
+sim: compile
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
+	@echo "$(BLUE)  Ejecutando simulación...$(NC)"
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
+	@$(VVP_CMD) $(VVP)
+	@echo ""
+	@echo "$(GREEN)✓ Simulación completada$(NC)"
+	@echo "$(YELLOW)  Archivo VCD generado: $(VCD)$(NC)"
+	@echo ""
+
+# Abrir GTKWave con el archivo VCD
+wave: $(VCD)
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
+	@echo "$(BLUE)  Abriendo GTKWave...$(NC)"
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
+	@$(GTKWAVE) $(VCD) &
+	@echo "$(GREEN)✓ GTKWave abierto$(NC)"
+	@echo ""
+
+# Limpiar archivos generados
+clean:
+	@echo "$(YELLOW)Limpiando archivos generados...$(NC)"
+	@rm -f $(VVP) $(VCD)
+	@rm -f *.vcd *.vvp
+	@echo "$(GREEN)✓ Limpieza completa$(NC)"
+	@echo ""
+
+# Verificar sintaxis sin simular
+check: $(SOURCES)
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
+	@echo "$(BLUE)  Verificando sintaxis...$(NC)"
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
+	@$(IVERILOG) -t null $(SOURCES)
+	@echo "$(GREEN)✓ Sintaxis correcta$(NC)"
+	@echo ""
+
+# Instalar dependencias de Python
+install-deps:
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
+	@echo "$(BLUE)  Instalando dependencias de Python...$(NC)"
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
+	@$(PYTHON) -m pip install --upgrade pip
+	@$(PYTHON) -m pip install pyserial
+	@echo "$(GREEN)✓ Dependencias instaladas$(NC)"
+	@echo ""
+
+# Ejecutar receptor UART (requiere puerto como argumento)
+# Uso: make run-receiver PORT=/dev/ttyUSB0
+run-receiver:
+	@if [ -z "$(PORT)" ]; then \
+		echo "$(RED)✗ Error: Especifique el puerto$(NC)"; \
+		echo "$(YELLOW)  Uso: make run-receiver PORT=/dev/ttyUSB0$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
+	@echo "$(BLUE)  Ejecutando receptor UART en $(PORT)...$(NC)"
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
+	@$(PYTHON) uart_mouse_receiver.py $(PORT)
+
+# Test rápido: compilar y simular
+test: clean sim
+	@echo "$(GREEN)═══════════════════════════════════════════════════════$(NC)"
+	@echo "$(GREEN)  ✓ Test completado exitosamente$(NC)"
+	@echo "$(GREEN)═══════════════════════════════════════════════════════$(NC)"
+	@echo ""
+
+# Mostrar información del proyecto
+info:
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
+	@echo "$(BLUE)  Información del Proyecto$(NC)"
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
+	@echo "  Proyecto:     $(PROJECT)"
+	@echo "  Testbench:    $(TB)"
+	@echo "  Archivos VCD: $(VCD)"
+	@echo ""
+	@echo "$(YELLOW)Archivos fuente:$(NC)"
+	@for file in $(SOURCES); do \
+		echo "  - $$file"; \
+	done
+	@echo ""
+
+# Ayuda
+help:
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
+	@echo "$(BLUE)  Makefile - PS/2 Mouse to UART$(NC)"
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
+	@echo ""
+	@echo "$(GREEN)Targets disponibles:$(NC)"
+	@echo "  $(YELLOW)make$(NC)              - Compilar y simular (default)"
+	@echo "  $(YELLOW)make compile$(NC)      - Solo compilar el testbench"
+	@echo "  $(YELLOW)make sim$(NC)          - Compilar y ejecutar simulación"
+	@echo "  $(YELLOW)make wave$(NC)         - Abrir GTKWave con resultados"
+	@echo "  $(YELLOW)make test$(NC)         - Limpiar, compilar y simular"
+	@echo "  $(YELLOW)make check$(NC)        - Verificar sintaxis Verilog"
+	@echo "  $(YELLOW)make clean$(NC)        - Limpiar archivos generados"
+	@echo "  $(YELLOW)make install-deps$(NC) - Instalar dependencias Python"
+	@echo "  $(YELLOW)make info$(NC)         - Mostrar información del proyecto"
+	@echo "  $(YELLOW)make help$(NC)         - Mostrar esta ayuda"
+	@echo ""
+	@echo "$(GREEN)Uso del receptor UART:$(NC)"
+	@echo "  $(YELLOW)make run-receiver PORT=/dev/ttyUSB0$(NC)  (Linux)"
+	@echo "  $(YELLOW)make run-receiver PORT=COM3$(NC)          (Windows)"
+	@echo ""
+	@echo "$(GREEN)Ejemplos:$(NC)"
+	@echo "  $(YELLOW)make test$(NC)                # Test completo"
+	@echo "  $(YELLOW)make sim && make wave$(NC)    # Simular y ver formas de onda"
+	@echo "  $(YELLOW)make check$(NC)               # Solo verificar sintaxis"
+	@echo ""
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(NC)"
