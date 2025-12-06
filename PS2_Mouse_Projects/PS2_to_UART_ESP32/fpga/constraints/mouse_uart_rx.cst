@@ -1,0 +1,81 @@
+//================================================================================
+// Constraint File (.cst) para Tang Primer 25K
+// Proyecto: Mouse UART Receiver (ESP32 → FPGA)
+// Arquitectura: Mouse PS/2 → ESP32 → UART → FPGA
+//
+// IMPORTANTE: Ajustar los números de pin según el hardware específico
+//================================================================================
+
+//================================================================================
+// Reloj del sistema (27 MHz en Tang Primer 25K)
+//================================================================================
+IO_LOC "clk" 4;
+IO_PORT "clk" PULL_MODE=UP;
+
+//================================================================================
+// Reset (Botón)
+//================================================================================
+IO_LOC "rst_n" 88;
+IO_PORT "rst_n" PULL_MODE=UP;
+
+//================================================================================
+// UART desde ESP32
+// NOTA: ESP32 TX (GPIO17) → FPGA RX
+//================================================================================
+IO_LOC "uart_rxd" 18;
+IO_PORT "uart_rxd" PULL_MODE=UP IO_TYPE=LVCMOS33;
+
+//================================================================================
+// LEDs de depuración
+//================================================================================
+// LED[0]: Toggle con cada paquete recibido
+IO_LOC "led[0]" 10;
+IO_PORT "led[0]" PULL_MODE=DOWN IO_TYPE=LVCMOS33 DRIVE=8;
+
+// LED[1]: Error UART
+IO_LOC "led[1]" 11;
+IO_PORT "led[1]" PULL_MODE=DOWN IO_TYPE=LVCMOS33 DRIVE=8;
+
+// LED[2]: Recibiendo paquete
+IO_LOC "led[2]" 13;
+IO_PORT "led[2]" PULL_MODE=DOWN IO_TYPE=LVCMOS33 DRIVE=8;
+
+// LED[3]: Botón izquierdo del mouse
+IO_LOC "led[3]" 14;
+IO_PORT "led[3]" PULL_MODE=DOWN IO_TYPE=LVCMOS33 DRIVE=8;
+
+//================================================================================
+// Salidas opcionales del mouse (para conectar a otros módulos)
+// Descomentar si se necesitan
+//================================================================================
+// IO_LOC "mouse_x_out[0]" 20;
+// IO_LOC "mouse_x_out[1]" 21;
+// ... (definir según necesidad)
+
+//================================================================================
+// NOTAS IMPORTANTES
+//================================================================================
+// Arquitectura del sistema:
+//
+//   ┌──────────┐         ┌──────────┐         ┌──────────┐
+//   │  Mouse   │  PS/2   │  ESP32   │  UART   │  FPGA    │
+//   │   PS/2   │ ──────► │ Arduino  │ ──────► │  Tang    │
+//   └──────────┘         └──────────┘         └──────────┘
+//                        GPIO 34/35          GPIO 17→18
+//
+// Conexiones ESP32:
+//   - Mouse CLK  → ESP32 GPIO 34
+//   - Mouse DATA → ESP32 GPIO 35
+//   - Mouse VCC  → 5V (ESP32 puede leer 5V en GPIO 34/35)
+//   - Mouse GND  → GND
+//
+// Conexiones ESP32 → FPGA:
+//   - ESP32 TX (GPIO 17) → FPGA RX (pin 18)
+//   - ESP32 GND → FPGA GND
+//
+// Protocolo UART:
+//   - Velocidad: 115200 baud
+//   - Formato: 8N1
+//   - 6 bytes por paquete del mouse
+//
+//================================================================================

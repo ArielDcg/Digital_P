@@ -5,8 +5,8 @@
 # CONFIGURACIÓN
 #============================================================================
 
-PROJECT = ps2_mouse_to_uart
-TOP_MODULE = ps2_mouse_to_uart
+PROJECT = mouse_display_top
+TOP_MODULE = mouse_display_top
 DEVICE = GW5A-LV25MG121NC1/I0
 
 # Directorios
@@ -16,15 +16,15 @@ SYNTH_DIR = synthesis
 CONST_DIR = constraints
 COMMON_DIR = ../../common
 
-# Archivos fuente
-SOURCES = $(SRC_DIR)/$(PROJECT).v \
-          $(SRC_DIR)/uart.v \
-          $(COMMON_DIR)/ps2_mouse_init.v
+# Archivos fuente (NUEVA ARQUITECTURA: ESP32 lee PS/2, FPGA recibe UART)
+SOURCES = $(SRC_DIR)/uart_mouse_receiver.v \
+          $(SRC_DIR)/mouse_display_top.v \
+          $(SRC_DIR)/uart.v
 
 # Testbench
-TB = $(SIM_DIR)/$(PROJECT)_tb.v
-TB_OUT = $(SIM_DIR)/$(PROJECT)_tb.vvp
-VCD = $(SIM_DIR)/$(PROJECT)_tb.vcd
+TB = $(SIM_DIR)/uart_mouse_receiver_tb.v
+TB_OUT = $(SIM_DIR)/uart_mouse_receiver_tb.vvp
+VCD = $(SIM_DIR)/uart_mouse_receiver_tb.vcd
 
 # Constraints y síntesis
 CST_FILE = $(CONST_DIR)/$(PROJECT).cst

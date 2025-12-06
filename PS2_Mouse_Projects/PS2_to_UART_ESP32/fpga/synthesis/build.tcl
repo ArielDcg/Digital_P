@@ -8,23 +8,22 @@
 set_device GW5A-LV25MG121NC1/I0 -name GW5A-25
 
 # Nombre del proyecto
-set_option -output_base_name ps2_mouse_to_uart
+set_option -output_base_name mouse_display_top
 
 # Directorios
 set SRC_DIR "../src"
-set COMMON_DIR "../../common"
 set CONST_DIR "../constraints"
 
-# Agregar archivos fuente
-add_file -type verilog "$SRC_DIR/ps2_mouse_to_uart.v"
+# Agregar archivos fuente (NUEVA ARQUITECTURA: ESP32→FPGA)
+add_file -type verilog "$SRC_DIR/uart_mouse_receiver.v"
+add_file -type verilog "$SRC_DIR/mouse_display_top.v"
 add_file -type verilog "$SRC_DIR/uart.v"
-add_file -type verilog "$COMMON_DIR/ps2_mouse_init.v"
 
 # Agregar constraints
-add_file -type cst "$CONST_DIR/ps2_mouse_to_uart.cst"
+add_file -type cst "$CONST_DIR/mouse_uart_rx.cst"
 
 # Configurar top module
-set_option -top_module ps2_mouse_to_uart
+set_option -top_module mouse_display_top
 
 # Opciones de síntesis
 set_option -verilog_std v2001
