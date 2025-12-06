@@ -26,11 +26,15 @@ Este proyecto implementa un sistema completo para leer datos de un mouse PS/2 y 
 | `uart.v` | Módulo de comunicación UART |
 | `ps2_mouse_to_uart_tb.v` | Testbench para simulación |
 
-### Archivos de Software (PC)
+### Archivos de Software (PC/ESP32)
 
 | Archivo | Descripción |
 |---------|-------------|
 | `uart_mouse_receiver.py` | Programa Python para recibir datos por UART |
+| `PS2_Mouse_UART_ESP32/` | Programas Arduino para ESP32 |
+| `PS2_Mouse_UART_ESP32/PS2_Mouse_UART_ESP32.ino` | Programa principal para ESP32 |
+| `PS2_Mouse_UART_ESP32/examples/WiFi_Mouse_Server/` | Servidor web con WebSocket |
+| `PS2_Mouse_UART_ESP32/examples/Servo_Control/` | Control de servomotores |
 
 ### Documentación
 
@@ -43,14 +47,25 @@ Este proyecto implementa un sistema completo para leer datos de un mouse PS/2 y 
 
 ## 🔌 Diagrama de Conexión
 
+### Opción 1: Con PC
 ```
 ┌──────────┐         ┌─────────┐         ┌──────────┐
 │  Mouse   │   PS/2  │  FPGA   │  UART   │    PC    │
 │   PS/2   │ ──────► │ (Tang)  │ ──────► │  Python  │
 └──────────┘         └─────────┘         └──────────┘
-                     │         │
                      │  LEDs   │ (debug)
                      └─────────┘
+
+### Opción 2: Con ESP32 (Recomendado)
+```
+┌──────────┐         ┌─────────┐         ┌──────────┐
+│  Mouse   │   PS/2  │  FPGA   │  UART   │  ESP32   │
+│   PS/2   │ ──────► │ (Tang)  │ ──────► │ Arduino  │
+└──────────┘         └─────────┘         └──────────┘
+                     │  LEDs   │         │  WiFi    │
+                     └─────────┘         │  Servos  │
+                                         │  etc.    │
+                                         └──────────┘
 ```
 
 ### Pines de Conexión
@@ -191,6 +206,72 @@ python3 uart_mouse_receiver.py /dev/tty.usbserial-*
 ║  Datos raw: 0A 00 FB 01 01                           ║
 ╚═══════════════════════════════════════════════════════╝
 ```
+
+---
+
+### 3. Recepción de Datos en ESP32 (Recomendado)
+
+**La ESP32 es la opción recomendada** ya que permite:
+- ✅ No necesita PC - sistema autónomo
+- ✅ WiFi integrado para enviar datos remotamente
+- ✅ Bluetooth disponible
+- ✅ Control directo de servos, LEDs, relays, etc.
+- ✅ Bajo consumo
+- ✅ Programación sencilla con Arduino IDE
+
+#### Conexión FPGA → ESP32:
+
+| FPGA Pin | ESP32 Pin | Función |
+|----------|-----------|---------|
+| UART TX  | GPIO 16 (RX2) | Datos |
+| GND      | GND       | Tierra común |
+
+#### Instalación en Arduino IDE:
+
+1. **Instalar soporte para ESP32:**
+   - Arduino IDE → File → Preferences
+   - En "Additional Board Manager URLs" agregar:
+     ```
+     https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+     ```
+   - Tools → Board → Boards Manager
+   - Buscar "esp32" e instalar
+
+2. **Abrir programa:**
+   ```
+   Archivo → Abrir → PS2_Mouse_UART_ESP32/PS2_Mouse_UART_ESP32.ino
+   ```
+
+3. **Configurar:**
+   - Tools → Board → ESP32 Dev Module
+   - Tools → Port → Seleccionar puerto COM
+
+4. **Subir programa:**
+   - Click en "Upload"
+   - Abrir Serial Monitor (115200 baud)
+
+#### Ejemplos Incluidos:
+
+**Programa Principal:** `PS2_Mouse_UART_ESP32.ino`
+- Monitor serial con formato visual
+- Cursor virtual acumulativo
+- Detección de clicks
+- Estadísticas del sistema
+
+**Servidor WiFi:** `examples/WiFi_Mouse_Server/`
+- Dashboard web en tiempo real
+- WebSocket para comunicación
+- Canvas de dibujo interactivo
+- Visualización de posición y botones
+- Acceso desde cualquier navegador
+
+**Control de Servos:** `examples/Servo_Control/`
+- Control pan/tilt con el mouse
+- Botón izquierdo: reset a centro
+- Botón medio: mostrar posición
+- Sensibilidad ajustable
+
+Ver `PS2_Mouse_UART_ESP32/README.md` para más detalles.
 
 ---
 
